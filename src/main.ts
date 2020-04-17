@@ -31,7 +31,7 @@ async function copyRecursive(sourcePath: string, targetPath: string) {
     }
 }
 
-async function install(installBase: string, swiftURL: string) {
+async function install(installBase: string, branchName: string, versionTag: string, platform: string) {
     const tempPath = await core.group('Setup paths', async () => {
         if (!await util.promisify(fs.exists)(installBase)) {
             await util.promisify(fs.mkdir)(installBase, { recursive: true });
@@ -39,6 +39,7 @@ async function install(installBase: string, swiftURL: string) {
         return await util.promisify(fs.mkdtemp)('SwiftyActions');
     });
 
+    const swiftURL = `https://swift.org/builds/${branchName}/${platform.split('.').join('')}/${versionTag}/${versionTag}-${platform}.tar.gz`;
     const swiftSigURL = `${swiftURL}.sig`;
     const allKeysURL = 'https://swift.org/keys/all-keys.asc';
 
@@ -133,8 +134,7 @@ async function main() {
         core.info("Using cached version!");
         await copyRecursive(cachedVersion, swiftInstallBase);
     } else {
-        const swiftURL = `https://swift.org/builds/${swiftBranch}/${swiftPlatform.split(".").join()}/${swiftVersion}/${swiftVersion}-${swiftPlatform}.tar.gz`;
-        await install(swiftInstallBase, swiftURL);
+        await install(swiftInstallBase, swiftBranch, swiftVersion, swiftPlatform);
         await tools.cacheDir(swiftInstallBase, mangledName, '1.0.0');
     }
 
