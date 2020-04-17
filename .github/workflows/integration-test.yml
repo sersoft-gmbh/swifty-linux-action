@@ -1,0 +1,41 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  release-version:
+    strategy:
+      matrix:
+        swift-version: [5.2.1, 5.2.0, 5.1.3]
+        action: ['./', 'sersoft-gmbh/SwiftyActions@master']
+        install-base: ['/', '/opt/other/']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ${{matrix.action}}
+        with:
+          release-version: ${{matrix.swift-version}}
+          install-base: ${{matrix.install-base}}
+      - name: Check installation
+        run: swift --version | grep -q ${{matrix.swift-version}}
+
+  branch-version:
+    strategy:
+      matrix:
+        swift-version: [5.2.1, 5.2.0, 5.1.3]
+        action: ['./', 'sersoft-gmbh/SwiftyActions@master']
+        install-base: ['/', '/opt/other/']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ${{matrix.action}}
+        with:
+          branch-name: swift-${{matrix.swift-version}}-release
+          version-tag: swift-${{matrix.swift-version}}-RELEASE
+          install-base: ${{matrix.install-base}}
+      - name: Check installation
+        run: swift --version | grep -q ${{matrix.swift-version}}
