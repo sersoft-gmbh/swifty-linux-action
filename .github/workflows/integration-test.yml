@@ -23,7 +23,7 @@ jobs:
         run: swift --version | grep -q ${{matrix.swift-version}}
         
   release-version-master:
-    if: github.event != pull_request
+    if: github.event != 'pull_request'
     strategy:
       matrix:
         swift-version: [5.2.1, 5.2.0, 5.1.3]
@@ -55,7 +55,7 @@ jobs:
         run: swift --version | grep -q ${{matrix.swift-version}}
         
   branch-version-master:
-    if: github.event != pull_request
+    if: github.event != 'pull_request'
     strategy:
       matrix:
         swift-version: [5.2.1, 5.2.0, 5.1.3]
