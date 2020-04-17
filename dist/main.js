@@ -6,19 +6,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
-const exec_1 = __importDefault(require("@actions/exec"));
+const exec_1 = require("@actions/exec");
 const tools = __importStar(require("@actions/tool-cache"));
 const fs = __importStar(require("fs"));
 const util = __importStar(require("util"));
 const path = __importStar(require("path"));
 async function cmd(cmd, args) {
     let stdOut = '';
-    await exec_1.default.exec(cmd, args, {
+    await exec_1.exec(cmd, args, {
         failOnStdErr: true,
         listeners: {
             stdline: data => stdOut += data

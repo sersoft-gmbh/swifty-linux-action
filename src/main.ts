@@ -1,14 +1,13 @@
 import * as core from '@actions/core';
-import exec from '@actions/exec';
+import { exec } from '@actions/exec';
 import * as tools from '@actions/tool-cache';
 import * as fs from "fs";
 import * as util from "util";
 import * as path from "path";
-import {URL} from "url";
 
 async function cmd(cmd: string, args?: string[]): Promise<string> {
     let stdOut = '';
-    await exec.exec(cmd, args, {
+    await exec(cmd, args, {
         failOnStdErr: true,
         listeners: {
             stdline: data => stdOut += data
