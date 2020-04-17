@@ -1,11 +1,10 @@
 import * as core from '@actions/core';
 import exec from '@actions/exec';
+import * as tools from '@actions/tool-cache';
 import * as fs from "fs";
-import * as https from "https";
 import * as util from "util";
-import tar from 'tar';
-// @ts-ignore
-import GPG from 'gpg';
+import * as path from "path";
+import {URL} from "url";
 
 async function cmd(cmd: string, args?: string[]): Promise<string> {
     let stdOut = '';
@@ -18,25 +17,60 @@ async function cmd(cmd: string, args?: string[]): Promise<string> {
     return stdOut;
 }
 
-async function downloadFile(name: string, url: string): Promise<string> {
-    async function _download(dest: string, url: string): Promise<string> {
-        return await new Promise((resolve, reject) => {
-            https.get(url, response => {
-                if ([301, 302].indexOf(response.statusCode ? response.statusCode : 0) !== -1 && response.headers.location) {
-                    _download(dest, response.headers.location).then(resolve).catch(reject);
-                }
-                const file = fs.createWriteStream(dest);
-                response.pipe(file);
-                file.on('finish', () => {
-                    file.close();
-                    resolve(dest);
-                });
-                file.on('error', reject);
-            }).on('error', reject);
-        });
+async function copyRecursive(sourcePath: string, targetPath: string) {
+    if ((await util.promisify(fs.lstat)(sourcePath)).isDirectory()) {
+        if (!await util.promisify(fs.exists)(targetPath)) {
+            await util.promisify(fs.mkdir)(targetPath, { recursive: true });
+        }
+
+        const files = await util.promisify(fs.readdir)(sourcePath);
+        await Promise.all(files.map((file) => {
+            return copyRecursive(path.join(sourcePath, file), path.join(targetPath, file));
+        }));
+    } else {
+        await util.promisify(fs.copyFile)(sourcePath, targetPath);
     }
-    const dest = await util.promisify(fs.mkdtemp)('SwiftyActions') + `/${name}`;
-    return await _download(dest, url);
+}
+
+async function install(installBase: string, swiftURL: string) {
+    const tempPath = await core.group('Setup paths', async () => {
+        if (!await util.promisify(fs.exists)(installBase)) {
+            await util.promisify(fs.mkdir)(installBase, { recursive: true });
+        }
+        return await util.promisify(fs.mkdtemp)('SwiftyActions');
+    });
+
+    const swiftSigURL = `${swiftURL}.sig`;
+    const allKeysURL = 'https://swift.org/keys/all-keys.asc';
+    const swiftPkg = path.join(tempPath, "swift.tar.gz");
+    const swiftSig = path.join(tempPath, "swift.tar.gz.sig");
+    const allKeysFile = path.join(tempPath, "all-keys.asc");
+    await core.group('Downloading files', async () => {
+        await Promise.all([
+            tools.downloadTool(swiftURL, swiftPkg),
+            tools.downloadTool(swiftSigURL, swiftSig),
+            tools.downloadTool(allKeysURL, allKeysFile),
+        ])
+    });
+
+    await core.group('Verifying files', async () => {
+        await cmd('gpg', ['--import', allKeysFile]);
+        await cmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg]);
+    });
+
+    await core.group('Unpacking files', async () => {
+        await tools.extractTar(swiftPkg, installBase, 'x --strip-components=1')
+        // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
+        await cmd('chmod', ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')]);
+    });
+
+    await core.group('Cleaning up', async () => {
+        await Promise.all([
+            util.promisify(fs.unlink)(swiftPkg),
+            util.promisify(fs.unlink)(swiftSig),
+            util.promisify(fs.unlink)(allKeysFile),
+        ]);
+    });
 }
 
 async function main() {
@@ -60,24 +94,14 @@ async function main() {
 
     const swiftPlatform = core.getInput('platform');
     const swiftInstallBase = core.getInput('install-base');
-    const swiftURL = `https://swift.org/builds/${swiftBranch}/${swiftPlatform.split(".").join()}/${swiftVersion}/${swiftVersion}-${swiftPlatform}.tar.gz`;
-    const swiftSigURL = `${swiftURL}.sig`;
-    const allKeysURL = 'https://swift.org/keys/all-keys.asc';
-
     const skipApt = core.getInput('skip-apt') == 'true';
-    core.endGroup()
-
-    await core.group('Check install base', async () => {
-        if (!await util.promisify(fs.exists)(swiftInstallBase)) {
-            await util.promisify(fs.mkdir)(swiftInstallBase, { recursive: true });
-        }
-    });
+    core.endGroup();
 
     if (!skipApt) {
         await core.group('Install dependencies', async () => {
-            await cmd('apt-get', ['-q', 'update']);
-            await cmd('apt-get', [
-                '-q', 'install', '-y',
+            await cmd('sudo', ['apt-get', '-q', 'update']);
+            await cmd('sudo', [
+                'apt-get', '-q', 'install', '-y',
                 'libatomic1',
                 'libbsd0',
                 'libcurl4',
@@ -96,63 +120,36 @@ async function main() {
             ]);
         });
     } else {
-        core.info("Skipping installation of dependencies...")
+        core.info("Skipping installation of dependencies...");
     }
 
-    let swiftPkg: string, swiftSig: string, allKeysFile: string;
-    await core.group('Downloading files', async () => {
-        swiftPkg = await downloadFile('swift.tar.gz', swiftURL);
-        swiftSig = await downloadFile('swift.tar.gz.sig', swiftSigURL);
-        allKeysFile = await downloadFile('all-keys.asc', allKeysURL);
-    });
-
-    await core.group('Verifying files', async () => {
-        await new Promise((resolve, reject) => {
-            GPG.importKey(allKeysFile, (error?: Error) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve();
-                }
-            });
-        });
-        await new Promise((resolve, reject) => {
-            GPG.call('', ['--verify', '--quiet', swiftSig, swiftPkg], (error?: Error) => {
-               if (error) {
-                   reject(error);
-               } else {
-                   resolve();
-               }
-            });
-        });
-    });
-
-    await core.group('Unpacking files', async () => {
-         await tar.x({ f: swiftPkg, strip: 1, cwd: swiftInstallBase });
-         // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
-         await cmd('chmod', ['-R', 'o+r', `${swiftInstallBase}/usr/lib/swift`]);
-    });
-
-    await core.group('Cleaning up', async () => {
-        await util.promisify(fs.unlink)(swiftPkg);
-        await util.promisify(fs.unlink)(swiftSig);
-        await util.promisify(fs.unlink)(allKeysFile);
-    });
+    const mangledName = `swift.${swiftBranch}-${swiftVersion}-${swiftPlatform}`;
+    const cachedVersion = tools.find(mangledName, '1.0.0');
+    if (cachedVersion) {
+        core.info("Using cached version!");
+        await copyRecursive(cachedVersion, swiftInstallBase);
+    } else {
+        const swiftURL = `https://swift.org/builds/${swiftBranch}/${swiftPlatform.split(".").join()}/${swiftVersion}/${swiftVersion}-${swiftPlatform}.tar.gz`;
+        await install(swiftInstallBase, swiftURL);
+        await tools.cacheDir(swiftInstallBase, mangledName, '1.0.0');
+    }
 
     if (swiftRelease) {
         await core.group('Validating installation', async () => {
-            const version = await cmd(`${swiftInstallBase}/usr/bin/swift`, ['--version']);
+            const version = await cmd(path.join(swiftInstallBase, '/usr/bin/swift'), ['--version']);
             if (!version.includes(swiftRelease)) {
                 core.setFailed(`Swift installation of version '${swiftRelease}' seems to have failed. 'swift --version' output: ${version}`);
             }
         });
     }
 
-    core.addPath(`${swiftInstallBase}/usr/bin`)
+    core.addPath(path.join(swiftInstallBase, '/usr/bin'))
 }
 
 try {
-    main().catch(core.setFailed);
+    main().catch((error) => {
+        core.setFailed(error.message);
+    });
 } catch (error) {
     core.setFailed(error.message);
 }
