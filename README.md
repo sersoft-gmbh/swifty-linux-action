@@ -1,14 +1,14 @@
 # SwiftyActions
 
-This action sets up a Swift environment on linux.
+![Integration Tests](https://github.com/sersoft-gmbh/SwiftyActions/workflows/Integration%20Tests/badge.svg)
 
+This action sets up a Swift environment on linux.
 
 ## Inputs
 
 ### `release-version`
 
 The (released) Swift version (e.g. `5.2.1`) to install. If given, `branch-name` and `version-tag` are ignored.
-
 
 ### `branch-name`
 
@@ -28,11 +28,11 @@ Default: `ubuntu18.04`.
 ### `install-base`
 
 The file path where to install Swift.
-Default: `/usr/local/swift`
+Default: `/opt/swift`
 
 ### `skip-apt`
 
-Whether or not the installation of dependencies (via apt) should be skipped.
+Whether the installation of dependencies (via apt) should be skipped.
 Default: `false`
 
 ## Outputs
@@ -46,4 +46,3 @@ uses: sersoft-gmbh/SwiftyActions@v1
 with:
     release-version: 5.2.1
 ```
-
