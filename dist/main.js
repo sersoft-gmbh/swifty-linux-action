@@ -65,7 +65,7 @@ async function install(installBase, branchName, versionTag, platform) {
         await cmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg], false);
     });
     await core.group('Unpacking files', async () => {
-        await tools.extractTar(swiftPkg, installBase, 'x --strip-components=1');
+        await tools.extractTar(swiftPkg, installBase, '-xz --strip-components=1');
         // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
         await cmd('chmod', ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')]);
     });
