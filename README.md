@@ -28,7 +28,7 @@ Default: `ubuntu18.04`.
 ### `install-base`
 
 The file path where to install Swift.
-Default: `/`
+Default: `/usr/local/swift`
 
 ### `skip-apt`
 

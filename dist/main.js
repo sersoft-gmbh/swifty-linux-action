@@ -50,13 +50,14 @@ async function install(installBase, branchName, versionTag, platform) {
         await cmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg], false);
     });
     await core.group('Unpacking files', async () => {
-        await tools.extractTar(swiftPkg, installBase);
         // We need to pass 'strip-components', so we cannot use 'tools.extractTar'
-        // if (await util.promisify(fs.realpath)(installBase) == '/') {
-        //     await cmd('tar', ['x', '--strip-components=1', '-C', installBase, '-f', swiftPkg]);
-        // } else {
-        //     await cmd('tar', ['x', '--strip-components=1', '-C', installBase, '-f', swiftPkg]);
-        // }
+        const baseTarArgs = ['x', '--strip-components=1', '-C', installBase, '-f', swiftPkg];
+        if (await util.promisify(fs.realpath)(installBase) == '/') {
+            await cmd('sudo', ['tar'].concat(baseTarArgs));
+        }
+        else {
+            await cmd('tar', baseTarArgs);
+        }
         // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
         await cmd('chmod', ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')]);
     });

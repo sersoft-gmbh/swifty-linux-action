@@ -18,7 +18,7 @@ inputs:
   install-base:
     description: The file path where to install Swift.
     required: false
-    default: /
+    default: /usr/local/swift
   skip-apt:
     description: Whether or not the installation of dependencies (via apt) should be skipped.
     required: false
