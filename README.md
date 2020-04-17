@@ -25,11 +25,6 @@ Required if `release-version` is not set!
 The platform for which to install the Swift version (e.g. ubuntu18.04).
 Default: `ubuntu18.04`.
 
-### `install-base`
-
-The file path where to install Swift.
-Default: `/opt/swift`
-
 ### `skip-apt`
 
 Whether the installation of dependencies (via apt) should be skipped.
@@ -37,7 +32,9 @@ Default: `false`
 
 ## Outputs
 
-_None_
+### `install-path`
+
+The path where Swift was installed.
 
 ## Example Usage
 

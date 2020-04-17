@@ -18,20 +18,8 @@ async function cmd(cmd: string, args?: string[], failOnStdErr: boolean = true): 
 }
 
 async function install(installBase: string, branchName: string, versionTag: string, platform: string) {
-    let installBaseIsWritable: boolean
     const tempPath = await core.group('Setup paths', async () => {
-        try {
-            await util.promisify(fs.access)(installBase, fs.constants.W_OK);
-            installBaseIsWritable = true
-        } catch (error) {
-            installBaseIsWritable = false
-            core.warning(`Install base ${installBase} is not writable! Using \`sudo\` for modifying commands!`)
-        }
-        if (installBaseIsWritable) {
-            await io.mkdirP(installBase);
-        } else {
-            await cmd('sudo', ['mkdir', '-p', installBase]);
-        }
+        await io.mkdirP(installBase);
         return await util.promisify(fs.mkdtemp)('SwiftyActions');
     });
 
@@ -54,16 +42,10 @@ async function install(installBase: string, branchName: string, versionTag: stri
 
     await core.group('Unpacking files', async () => {
         // We need to pass 'strip-components', so we cannot use 'tools.extractTar'
-        const baseTarArgs = ['x', '--strip-components=1', '-C', installBase, '-f', swiftPkg];
+        await cmd('tar', ['x', '--strip-components=1', '-C', installBase, '-f', swiftPkg]);
         // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
-        const baseChmodArgs = ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')];
-        if (installBaseIsWritable) {
-            await cmd('tar', baseTarArgs);
-            await cmd('chmod', baseChmodArgs);
-        } else {
-            await cmd('sudo', ['tar'].concat(baseTarArgs));
-            await cmd('sudo', ['chmod'].concat(baseChmodArgs));
-        }
+        await cmd('chmod', ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')]);
+
     });
 
     await core.group('Cleaning up', async () => {
@@ -91,7 +73,6 @@ async function main() {
     }
 
     const swiftPlatform = core.getInput('platform');
-    const swiftInstallBase = core.getInput('install-base');
     const skipApt = core.getInput('skip-apt') == 'true';
     core.endGroup();
 
@@ -123,6 +104,7 @@ async function main() {
 
     const mangledName = `swift.${swiftBranch}-${swiftVersion}-${swiftPlatform}`;
     const cachedVersion = tools.find(mangledName, '1.0.0');
+    const swiftInstallBase = path.join('/opt/swift', mangledName);
     if (cachedVersion) {
         core.info("Using cached version!");
         await io.cp(cachedVersion, swiftInstallBase, { recursive: true });
@@ -141,6 +123,7 @@ async function main() {
     }
 
     core.addPath(path.join(swiftInstallBase, '/usr/bin'));
+    core.setOutput('install-path', swiftInstallBase);
 }
 
 try {

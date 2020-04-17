@@ -15,14 +15,13 @@ inputs:
     description: The platform for which to install the Swift version (e.g. ubuntu18.04).
     required: false
     default: ubuntu18.04
-  install-base:
-    description: The file path where to install Swift.
-    required: false
-    default: /opt/swift
   skip-apt:
     description: Whether or not the installation of dependencies (via apt) should be skipped.
     required: false
     default: false
+outputs:
+  install-path:
+    description: The path where Swift was installed.
 runs:
   using: node12
   main: dist/main.js
