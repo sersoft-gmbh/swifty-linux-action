@@ -13,12 +13,12 @@ const tools = __importStar(require("@actions/tool-cache"));
 const fs = __importStar(require("fs"));
 const util = __importStar(require("util"));
 const path = __importStar(require("path"));
-async function cmd(cmd, args) {
+async function cmd(cmd, args, failOnStdErr = true) {
     let stdOut = '';
     await exec.exec(cmd, args, {
-        failOnStdErr: true,
+        failOnStdErr: failOnStdErr,
         listeners: {
-            stdline: data => stdOut += data
+            stdline: (data) => stdOut += data
         }
     });
     return stdOut;
@@ -61,8 +61,8 @@ async function install(installBase, branchName, versionTag, platform) {
         ]);
     });
     await core.group('Verifying files', async () => {
-        await cmd('gpg', ['--import', allKeysFile]);
-        await cmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg]);
+        await cmd('gpg', ['--import', allKeysFile], false);
+        await cmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg], false);
     });
     await core.group('Unpacking files', async () => {
         await tools.extractTar(swiftPkg, installBase, 'x --strip-components=1');

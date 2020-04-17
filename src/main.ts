@@ -5,12 +5,12 @@ import * as fs from "fs";
 import * as util from "util";
 import * as path from "path";
 
-async function cmd(cmd: string, args?: string[]): Promise<string> {
+async function cmd(cmd: string, args?: string[], failOnStdErr: boolean = true): Promise<string> {
     let stdOut = '';
     await exec.exec(cmd, args, {
-        failOnStdErr: true,
+        failOnStdErr: failOnStdErr,
         listeners: {
-            stdline: data => stdOut += data
+            stdline: (data: string) => stdOut += data
         }
     });
     return stdOut;
@@ -59,8 +59,8 @@ async function install(installBase: string, branchName: string, versionTag: stri
     });
 
     await core.group('Verifying files', async () => {
-        await cmd('gpg', ['--import', allKeysFile]);
-        await cmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg]);
+        await cmd('gpg', ['--import', allKeysFile], false);
+        await cmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg], false);
     });
 
     await core.group('Unpacking files', async () => {
