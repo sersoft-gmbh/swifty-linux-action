@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { exec } from '@actions/exec';
+import * as exec from '@actions/exec';
 import * as tools from '@actions/tool-cache';
 import * as fs from "fs";
 import * as util from "util";
@@ -7,7 +7,7 @@ import * as path from "path";
 
 async function cmd(cmd: string, args?: string[]): Promise<string> {
     let stdOut = '';
-    await exec(cmd, args, {
+    await exec.exec(cmd, args, {
         failOnStdErr: true,
         listeners: {
             stdline: data => stdOut += data
@@ -49,7 +49,7 @@ async function install(installBase: string, swiftURL: string) {
             tools.downloadTool(swiftURL, swiftPkg),
             tools.downloadTool(swiftSigURL, swiftSig),
             tools.downloadTool(allKeysURL, allKeysFile),
-        ])
+        ]);
     });
 
     await core.group('Verifying files', async () => {
@@ -58,7 +58,7 @@ async function install(installBase: string, swiftURL: string) {
     });
 
     await core.group('Unpacking files', async () => {
-        await tools.extractTar(swiftPkg, installBase, 'x --strip-components=1')
+        await tools.extractTar(swiftPkg, installBase, 'x --strip-components=1');
         // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
         await cmd('chmod', ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')]);
     });
@@ -142,7 +142,7 @@ async function main() {
         });
     }
 
-    core.addPath(path.join(swiftInstallBase, '/usr/bin'))
+    core.addPath(path.join(swiftInstallBase, '/usr/bin'));
 }
 
 try {

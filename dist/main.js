@@ -8,14 +8,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(require("@actions/core"));
-const exec_1 = require("@actions/exec");
+const exec = __importStar(require("@actions/exec"));
 const tools = __importStar(require("@actions/tool-cache"));
 const fs = __importStar(require("fs"));
 const util = __importStar(require("util"));
 const path = __importStar(require("path"));
 async function cmd(cmd, args) {
     let stdOut = '';
-    await exec_1.exec(cmd, args, {
+    await exec.exec(cmd, args, {
         failOnStdErr: true,
         listeners: {
             stdline: data => stdOut += data
