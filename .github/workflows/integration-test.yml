@@ -21,7 +21,7 @@ jobs:
           install-base: ${{matrix.install-base}}
       - name: Check installation
         run: swift --version | grep -q ${{matrix.swift-version}}
-        
+
   release-master:
     if: github.event != 'pull_request'
     strategy:
@@ -53,7 +53,7 @@ jobs:
           install-base: ${{matrix.install-base}}
       - name: Check installation
         run: swift --version | grep -q ${{matrix.swift-version}}
-        
+
   branch-master:
     if: github.event != 'pull_request'
     strategy:
