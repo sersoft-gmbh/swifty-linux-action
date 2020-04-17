@@ -14,7 +14,7 @@ const io = __importStar(require("@actions/io"));
 const fs = __importStar(require("fs"));
 const util = __importStar(require("util"));
 const path = __importStar(require("path"));
-async function cmd(cmd, args, failOnStdErr = true) {
+async function runCmd(cmd, args, failOnStdErr = true) {
     let stdOut = '';
     await exec.exec(cmd, args, {
         failOnStdErr: failOnStdErr,
@@ -41,14 +41,14 @@ async function install(installBase, branchName, versionTag, platform) {
         ]);
     });
     await core.group('Verifying files', async () => {
-        await cmd('gpg', ['--import', allKeysFile], false);
-        await cmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg], false);
+        await runCmd('gpg', ['--import', allKeysFile], false);
+        await runCmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg], false);
     });
     await core.group('Unpacking files', async () => {
         // We need to pass 'strip-components', so we cannot use 'tools.extractTar'
-        await cmd('tar', ['x', '--strip-components=1', '-C', installBase, '-f', swiftPkg]);
+        await runCmd('tar', ['x', '--strip-components=1', '-C', installBase, '-f', swiftPkg]);
         // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
-        await cmd('chmod', ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')]);
+        await runCmd('chmod', ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')]);
     });
     await core.group('Cleaning up', async () => {
         await io.rmRF(tempPath);
@@ -76,8 +76,8 @@ async function main() {
     core.endGroup();
     if (!skipApt) {
         await core.group('Install dependencies', async () => {
-            await cmd('sudo', ['apt-get', '-q', 'update']);
-            await cmd('sudo', [
+            await runCmd('sudo', ['apt-get', '-q', 'update']);
+            await runCmd('sudo', [
                 'apt-get', '-q', 'install', '-y',
                 'libatomic1',
                 'libbsd0',
@@ -100,9 +100,10 @@ async function main() {
     else {
         core.info("Skipping installation of dependencies...");
     }
-    const mangledName = `swift.${swiftBranch}-${swiftVersion}-${swiftPlatform}`;
+    const versionIdentifier = `${swiftBranch}-${swiftVersion}-${swiftPlatform}`;
+    const mangledName = `swift.${versionIdentifier}`;
     const cachedVersion = tools.find(mangledName, '1.0.0');
-    const swiftInstallBase = path.join('/opt/swift', mangledName);
+    const swiftInstallBase = path.join('/opt/swift', versionIdentifier);
     if (cachedVersion) {
         core.info("Using cached version!");
         await io.cp(cachedVersion, swiftInstallBase, { recursive: true });
@@ -113,9 +114,9 @@ async function main() {
     }
     if (swiftRelease) {
         await core.group('Validating installation', async () => {
-            const version = await cmd(path.join(swiftInstallBase, '/usr/bin/swift'), ['--version']);
+            const version = await runCmd(path.join(swiftInstallBase, '/usr/bin/swift'), ['--version']);
             if (!version.includes(swiftRelease)) {
-                core.setFailed(`Swift installation of version '${swiftRelease}' seems to have failed. 'swift --version' output: ${version}`);
+                throw new Error(`Swift installation of version '${swiftRelease}' seems to have failed. 'swift --version' output: ${version}`);
             }
         });
     }
