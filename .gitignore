@@ -1,6 +1,7 @@
 .DS_Store
 
-node_modules/
+# Github seems to need those
+# node_modules/
 
 .idea/
 
