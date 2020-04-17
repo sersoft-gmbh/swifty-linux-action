@@ -1,0 +1,31 @@
+name: Install Swift on Linux
+description: Installs a Swift toolchain on Linux
+author: Florian Friedrich
+inputs:
+  release-version:
+    description: The (released) Swift version (e.g. 5.2.1) to install. If given, `branch-name` and `version-tag` are ignored.
+    required: false
+  branch-name:
+    description: The branch of the Swift version to install (e.g. swift-5.2.1-release). Required if `release-version` is not set!
+    required: false
+  version-tag:
+    description: The version tag of the Swift version to install (e.g. swift-5.2.1-RELEASE). Required if `release-version` is not set!
+    required: false
+  platform:
+    description: The platform for which to install the Swift version (e.g. ubuntu18.04).
+    required: false
+    default: ubuntu18.04
+  install-base:
+    description: The file path where to install Swift.
+    required: false
+    default: /
+  skip-apt:
+    description: Whether or not the installation of dependencies (via apt) should be skipped.
+    required: false
+    default: false
+runs:
+  using: node12
+  main: lib/main.js
+branding:
+  color: orange
+  icon: cpu
