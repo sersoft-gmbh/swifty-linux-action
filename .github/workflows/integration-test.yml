@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         swift-version: [5.2.2, 5.2, 5.1.3]
-        install-base: ['/', '/opt/swift/', '/tmp/test/swift']
+        install-base: ['/', '/opt/swift/', '/tmp/test/swift', '/usr/swift']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -27,7 +27,7 @@ jobs:
     strategy:
       matrix:
         swift-version: [5.2.2, 5.2, 5.1.3]
-        install-base: ['/', '/opt/swift/', '/tmp/test/swift']
+        install-base: ['/', '/opt/swift/', '/tmp/test/swift', '/usr/swift']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -42,7 +42,7 @@ jobs:
     strategy:
       matrix:
         swift-version: [5.2.2, 5.2, 5.1.3]
-        install-base: ['/', '/opt/swift/', '/tmp/test/swift']
+        install-base: ['/', '/opt/swift/', '/tmp/test/swift', '/usr/swift']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -59,7 +59,7 @@ jobs:
     strategy:
       matrix:
         swift-version: [5.2.2, 5.2, 5.1.3]
-        install-base: ['/', '/opt/swift/', '/tmp/test/swift']
+        install-base: ['/', '/opt/swift/', '/tmp/test/swift', '/usr/swift']
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
