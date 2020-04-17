@@ -41,6 +41,11 @@ async function install(installBase: string, swiftURL: string) {
 
     const swiftSigURL = `${swiftURL}.sig`;
     const allKeysURL = 'https://swift.org/keys/all-keys.asc';
+
+    core.debug(`Downloading Swift from ${swiftURL}`);
+    core.debug(`Downloading Swift signature from ${swiftSigURL}`);
+    core.debug(`Downloading all keys from ${allKeysURL}`);
+
     const swiftPkg = path.join(tempPath, "swift.tar.gz");
     const swiftSig = path.join(tempPath, "swift.tar.gz.sig");
     const allKeysFile = path.join(tempPath, "all-keys.asc");
