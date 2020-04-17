@@ -29,20 +29,15 @@ async function install(installBase, branchName, versionTag, platform) {
         await io.mkdirP(installBase);
         return await util.promisify(fs.mkdtemp)('SwiftyActions');
     });
-    const swiftURL = `https://swift.org/builds/${branchName}/${platform.split('.').join('')}/${versionTag}/${versionTag}-${platform}.tar.gz`;
-    const swiftSigURL = `${swiftURL}.sig`;
-    const allKeysURL = 'https://swift.org/keys/all-keys.asc';
-    core.debug(`Downloading Swift from ${swiftURL}`);
-    core.debug(`Downloading Swift signature from ${swiftSigURL}`);
-    core.debug(`Downloading all keys from ${allKeysURL}`);
     const swiftPkg = path.join(tempPath, "swift.tar.gz");
     const swiftSig = path.join(tempPath, "swift.tar.gz.sig");
     const allKeysFile = path.join(tempPath, "all-keys.asc");
     await core.group('Downloading files', async () => {
+        const swiftURL = `https://swift.org/builds/${branchName}/${platform.split('.').join('')}/${versionTag}/${versionTag}-${platform}.tar.gz`;
         await Promise.all([
             tools.downloadTool(swiftURL, swiftPkg),
-            tools.downloadTool(swiftSigURL, swiftSig),
-            tools.downloadTool(allKeysURL, allKeysFile),
+            tools.downloadTool(`${swiftURL}.sig`, swiftSig),
+            tools.downloadTool('https://swift.org/keys/all-keys.asc', allKeysFile),
         ]);
     });
     await core.group('Verifying files', async () => {
