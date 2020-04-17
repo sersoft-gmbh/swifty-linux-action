@@ -25,8 +25,22 @@ async function cmd(cmd, args, failOnStdErr = true) {
     return stdOut;
 }
 async function install(installBase, branchName, versionTag, platform) {
+    let installBaseIsWritable;
     const tempPath = await core.group('Setup paths', async () => {
-        await io.mkdirP(installBase);
+        try {
+            await util.promisify(fs.access)(installBase, fs.constants.W_OK);
+            installBaseIsWritable = true;
+        }
+        catch (error) {
+            installBaseIsWritable = false;
+            core.warning(`Install base ${installBase} is not writable! Using \`sudo\` for modifying commands!`);
+        }
+        if (installBaseIsWritable) {
+            await io.mkdirP(installBase);
+        }
+        else {
+            await cmd('sudo', ['mkdir', '-p', installBase]);
+        }
         return await util.promisify(fs.mkdtemp)('SwiftyActions');
     });
     const swiftPkg = path.join(tempPath, "swift.tar.gz");
@@ -47,14 +61,16 @@ async function install(installBase, branchName, versionTag, platform) {
     await core.group('Unpacking files', async () => {
         // We need to pass 'strip-components', so we cannot use 'tools.extractTar'
         const baseTarArgs = ['x', '--strip-components=1', '-C', installBase, '-f', swiftPkg];
-        if (await util.promisify(fs.realpath)(installBase) == '/') {
-            await cmd('sudo', ['tar'].concat(baseTarArgs));
+        // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
+        const baseChmodArgs = ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')];
+        if (installBaseIsWritable) {
+            await cmd('tar', baseTarArgs);
+            await cmd('chmod', baseChmodArgs);
         }
         else {
-            await cmd('tar', baseTarArgs);
+            await cmd('sudo', ['tar'].concat(baseTarArgs));
+            await cmd('sudo', ['chmod'].concat(baseChmodArgs));
         }
-        // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
-        await cmd('chmod', ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')]);
     });
     await core.group('Cleaning up', async () => {
         await io.rmRF(tempPath);
