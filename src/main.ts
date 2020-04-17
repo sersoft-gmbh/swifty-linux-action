@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as tools from '@actions/tool-cache';
+import * as io from '@actions/io';
 import * as fs from "fs";
 import * as util from "util";
 import * as path from "path";
@@ -16,26 +17,9 @@ async function cmd(cmd: string, args?: string[], failOnStdErr: boolean = true): 
     return stdOut;
 }
 
-async function copyRecursive(sourcePath: string, targetPath: string) {
-    if ((await util.promisify(fs.lstat)(sourcePath)).isDirectory()) {
-        if (!await util.promisify(fs.exists)(targetPath)) {
-            await util.promisify(fs.mkdir)(targetPath, { recursive: true });
-        }
-
-        const files = await util.promisify(fs.readdir)(sourcePath);
-        await Promise.all(files.map((file) => {
-            return copyRecursive(path.join(sourcePath, file), path.join(targetPath, file));
-        }));
-    } else {
-        await util.promisify(fs.copyFile)(sourcePath, targetPath);
-    }
-}
-
 async function install(installBase: string, branchName: string, versionTag: string, platform: string) {
     const tempPath = await core.group('Setup paths', async () => {
-        if (!await util.promisify(fs.exists)(installBase)) {
-            await util.promisify(fs.mkdir)(installBase, { recursive: true });
-        }
+        await io.mkdirP(installBase);
         return await util.promisify(fs.mkdtemp)('SwiftyActions');
     });
 
@@ -64,17 +48,14 @@ async function install(installBase: string, branchName: string, versionTag: stri
     });
 
     await core.group('Unpacking files', async () => {
-        await tools.extractTar(swiftPkg, installBase, '-xz --strip-components=1');
+        // We need to pass 'strip-components', so we cannot use 'tools.extractTar'
+        await cmd('tar', ['x', '--strip-components=1', '-C', installBase, '-f', swiftPkg]);
         // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
         await cmd('chmod', ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')]);
     });
 
     await core.group('Cleaning up', async () => {
-        await Promise.all([
-            util.promisify(fs.unlink)(swiftPkg),
-            util.promisify(fs.unlink)(swiftSig),
-            util.promisify(fs.unlink)(allKeysFile),
-        ]);
+        await io.rmRF(tempPath);
     });
 }
 
@@ -132,7 +113,7 @@ async function main() {
     const cachedVersion = tools.find(mangledName, '1.0.0');
     if (cachedVersion) {
         core.info("Using cached version!");
-        await copyRecursive(cachedVersion, swiftInstallBase);
+        await io.cp(cachedVersion, swiftInstallBase, { recursive: true });
     } else {
         await install(swiftInstallBase, swiftBranch, swiftVersion, swiftPlatform);
         await tools.cacheDir(swiftInstallBase, mangledName, '1.0.0');
