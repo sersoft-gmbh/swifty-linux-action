@@ -25,7 +25,7 @@ inputs:
     default: false
 runs:
   using: node12
-  main: lib/main.js
+  main: dist/main.js
 branding:
   color: orange
   icon: cpu
