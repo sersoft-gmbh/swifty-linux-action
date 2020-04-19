@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "deploy": "rm -rf node_modules dist && npm install --only=prod && tsc && ncc build lib/main.js -o dist"
+    "deploy": "rm -rf node_modules dist && npm install --only=prod && npm run build && ncc build lib/main.js -o dist"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,5 @@
     "@actions/exec": "^1.0.3",
     "@actions/github": "^2.1.1",
     "@actions/tool-cache": "^1.3.3"
-  },
-  "devDependencies": {}
+  }
 }
