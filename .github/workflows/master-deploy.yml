@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install depenedencies
-        run: npm i -g @zeit/ncc typescript
+        run: sudo npm i -g @zeit/ncc typescript
       - uses: actions/checkout@v2
       - name: Generate action code
         run: npm run deploy
@@ -30,7 +30,7 @@ jobs:
     strategy:
       matrix:
         swift-version: [5.2.2, 5.2, 5.1.3, 5.1]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: sersoft-gmbh/SwiftyActions@master
         id: install-swift
@@ -46,7 +46,7 @@ jobs:
     strategy:
       matrix:
         swift-version: [5.2.2, 5.2, 5.1.3, 5.1]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: sersoft-gmbh/SwiftyActions@master
         id: install-swift

@@ -9,13 +9,13 @@ jobs:
     strategy:
       matrix:
         swift-version: [5.2.2, 5.2, 5.1.3, 5.1]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
+      - name: Install depenedencies
+        run: sudo npm i -g @zeit/ncc typescript
       - uses: actions/checkout@v2
       - name: Generate action code
-        run: |
-          npm i -g @zeit/ncc typescript
-          npm run deploy
+        run: npm run deploy
       - uses: './'
         id: install-swift
         with:
@@ -29,13 +29,13 @@ jobs:
     strategy:
       matrix:
         swift-version: [5.2.2, 5.2, 5.1.3, 5.1]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
+      - name: Install depenedencies
+        run: sudo npm i -g @zeit/ncc typescript
       - uses: actions/checkout@v2
       - name: Generate action code
-        run: |
-          npm i -g @zeit/ncc typescript
-          npm run deploy
+        run: npm run deploy
       - uses: './'
         id: install-swift
         with:
