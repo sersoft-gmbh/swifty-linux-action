@@ -22,7 +22,7 @@ jobs:
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           MAJOR_TAG=$(printf "${GH_TAG}" | awk -F'.' '{print $1}')
-          MAJOR_MINOR_TAG=$(printf "${GH_TAG}" | awk -F'.' '{print $1.$2}')
+          MAJOR_MINOR_TAG=$(printf "${GH_TAG}" | awk -F'.' '{print $1"."$2}')
           for TAG_TO_UPDATE in "${MAJOR_TAG}" "${MAJOR_MINOR_TAG}"; do
             printf "Creating ${TAG_TO_UPDATE}...\n"
             git tag --force "${TAG_TO_UPDATE}"
