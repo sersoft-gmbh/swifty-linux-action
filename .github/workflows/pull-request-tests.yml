@@ -1,0 +1,47 @@
+name: Integration Tests
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  release-local:
+    strategy:
+      matrix:
+        swift-version: [5.2.2, 5.2, 5.1.3, 5.1]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generate action code
+        run: |
+          npm i -g @zeit/ncc typescript
+          npm run deploy
+      - uses: './'
+        id: install-swift
+        with:
+          release-version: ${{matrix.swift-version}}
+      - name: Check installed path
+        run: test -d ${{steps.install-swift.outputs.install-path}}
+      - name: Check installed version
+        run: swift --version | grep -q ${{matrix.swift-version}}
+
+  branch-local:
+    strategy:
+      matrix:
+        swift-version: [5.2.2, 5.2, 5.1.3, 5.1]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generate action code
+        run: |
+          npm i -g @zeit/ncc typescript
+          npm run deploy
+      - uses: './'
+        id: install-swift
+        with:
+          branch-name: swift-${{matrix.swift-version}}-release
+          version-tag: swift-${{matrix.swift-version}}-RELEASE
+      - name: Check installed path
+        run: test -d ${{steps.install-swift.outputs.install-path}}
+      - name: Check installed version
+        run: swift --version | grep -q ${{matrix.swift-version}}

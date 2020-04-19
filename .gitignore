@@ -1,7 +1,8 @@
 .DS_Store
 
-# Github seems to need those
-# node_modules/
-
 .idea/
 
+node_modules/
+
+# Lib is just temporary - so we ignore it
+lib/

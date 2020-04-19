@@ -24,7 +24,7 @@ outputs:
     description: The path where Swift was installed.
 runs:
   using: node12
-  main: dist/main.js
+  main: dist/index.js
 branding:
   color: orange
   icon: cpu
