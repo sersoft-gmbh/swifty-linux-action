@@ -11,20 +11,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: "Update Release Tags"
+      - uses: sersoft-gmbh/running-release-tags-action@v1
         if: github.event.release.prerelease == false
-        run: |
-          GH_TAG=$(printf "${GITHUB_REF}" | awk -F'/' '{print $NF}')
-          if ! printf "${GH_TAG}" | grep -Eq '^v?[0-9]+\.[0-9]+\.[0-9]+$'; then
-            printf "${GH_TAG} is not a SemVer tag. Ignoring...\n"
-            exit 0
-          fi
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          MAJOR_TAG=$(printf "${GH_TAG}" | awk -F'.' '{print $1}')
-          MAJOR_MINOR_TAG=$(printf "${GH_TAG}" | awk -F'.' '{print $1"."$2}')
-          for TAG_TO_UPDATE in "${MAJOR_TAG}" "${MAJOR_MINOR_TAG}"; do
-            printf "Creating ${TAG_TO_UPDATE}...\n"
-            git tag --force "${TAG_TO_UPDATE}"
-            git push --force origin "${TAG_TO_UPDATE}"
-          done
