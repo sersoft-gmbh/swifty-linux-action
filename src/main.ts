@@ -11,7 +11,7 @@ async function runCmd(cmd: string, args?: string[], failOnStdErr: boolean = true
     await exec.exec(cmd, args, {
         failOnStdErr: failOnStdErr,
         listeners: {
-            stdline: (data: string) => stdOut += data
+            stdout: (data) => stdOut += data.toString()
         }
     });
     return stdOut;
@@ -45,12 +45,9 @@ async function install(installBase: string, branchName: string, versionTag: stri
         await runCmd('tar', ['x', '--strip-components=1', '-C', installBase, '-f', swiftPkg]);
         // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
         await runCmd('chmod', ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')]);
-
     });
 
-    await core.group('Cleaning up', async () => {
-        await io.rmRF(tempPath);
-    });
+    await core.group('Cleaning up', async () => await io.rmRF(tempPath));
 }
 
 async function main() {
@@ -102,7 +99,7 @@ async function main() {
         core.info("Skipping installation of dependencies...");
     }
 
-    const versionIdentifier = `${swiftBranch}-${swiftVersion}-${swiftPlatform}`
+    const versionIdentifier = `${swiftBranch}-${swiftVersion}-${swiftPlatform}`;
     const mangledName = `swift.${versionIdentifier}`;
     const cachedVersion = tools.find(mangledName, '1.0.0');
     const swiftInstallBase = path.join('/opt/swift', versionIdentifier);
@@ -128,9 +125,7 @@ async function main() {
 }
 
 try {
-    main().catch((error) => {
-        core.setFailed(error.message);
-    });
+    main().catch((error) => core.setFailed(error.message));
 } catch (error) {
     core.setFailed(error.message);
 }

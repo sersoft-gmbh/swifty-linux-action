@@ -1,6 +1,6 @@
 name: Install Swift on Linux
 description: Installs a Swift toolchain on Linux
-author: Florian Friedrich
+author: ser.sofgt GmbH
 inputs:
   release-version:
     description: The (released) Swift version (e.g. 5.2.1) to install. If given, `branch-name` and `version-tag` are ignored.
