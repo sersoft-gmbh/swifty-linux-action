@@ -4457,7 +4457,7 @@ async function runCmd(cmd, args, failOnStdErr = true) {
     await exec.exec(cmd, args, {
         failOnStdErr: failOnStdErr,
         listeners: {
-            stdline: (data) => stdOut += data
+            stdout: (data) => stdOut += data.toString()
         }
     });
     return stdOut;
@@ -4488,9 +4488,7 @@ async function install(installBase, branchName, versionTag, platform) {
         // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
         await runCmd('chmod', ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')]);
     });
-    await core.group('Cleaning up', async () => {
-        await io.rmRF(tempPath);
-    });
+    await core.group('Cleaning up', async () => await io.rmRF(tempPath));
 }
 async function main() {
     switch (process.platform) {
@@ -4562,9 +4560,7 @@ async function main() {
     core.setOutput('install-path', swiftInstallBase);
 }
 try {
-    main().catch((error) => {
-        core.setFailed(error.message);
-    });
+    main().catch((error) => core.setFailed(error.message));
 }
 catch (error) {
     core.setFailed(error.message);
