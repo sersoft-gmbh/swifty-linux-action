@@ -4483,10 +4483,9 @@ const io = __importStar(__webpack_require__(51));
 const fs = __importStar(__webpack_require__(747));
 const util = __importStar(__webpack_require__(669));
 const path = __importStar(__webpack_require__(622));
-async function runCmd(cmd, args, failOnStdErr = true) {
+async function runCmd(cmd, args) {
     let stdOut = '';
     await exec.exec(cmd, args, {
-        failOnStdErr: failOnStdErr,
         listeners: {
             stdout: (data) => stdOut += data.toString()
         }
@@ -4510,8 +4509,8 @@ async function install(installBase, branchName, versionTag, platform) {
         ]);
     });
     await core.group('Verifying files', async () => {
-        await runCmd('gpg', ['--import', allKeysFile], false);
-        await runCmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg], false);
+        await runCmd('gpg', ['--import', allKeysFile]);
+        await runCmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg]);
     });
     await core.group('Unpacking files', async () => {
         // We need to pass 'strip-components', so we cannot use 'tools.extractTar'
