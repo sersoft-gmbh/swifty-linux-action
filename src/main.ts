@@ -6,10 +6,9 @@ import * as fs from "fs";
 import * as util from "util";
 import * as path from "path";
 
-async function runCmd(cmd: string, args?: string[], failOnStdErr: boolean = true): Promise<string> {
+async function runCmd(cmd: string, args?: string[]): Promise<string> {
     let stdOut = '';
     await exec.exec(cmd, args, {
-        failOnStdErr: failOnStdErr,
         listeners: {
             stdout: (data) => stdOut += data.toString()
         }
@@ -36,8 +35,8 @@ async function install(installBase: string, branchName: string, versionTag: stri
     });
 
     await core.group('Verifying files', async () => {
-        await runCmd('gpg', ['--import', allKeysFile], false);
-        await runCmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg], false);
+        await runCmd('gpg', ['--import', allKeysFile]);
+        await runCmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg]);
     });
 
     await core.group('Unpacking files', async () => {
