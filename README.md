@@ -25,7 +25,7 @@ Required if `release-version` is not set!
 
 ### `platform`
 
-The platform for which to install the Swift version (e.g. `ubuntu18.04`).<br/>
+The platform for which to install the Swift version (e.g. `ubuntu18.04`). Note that the github-actions notations with a dash (e.g. `ubuntu-20.04`) is also valid.<br/>
 Default: `ubuntu18.04`.
 
 ### `skip-apt`

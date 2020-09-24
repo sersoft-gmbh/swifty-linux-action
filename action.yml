@@ -12,7 +12,7 @@ inputs:
     description: The version tag of the Swift version to install (e.g. swift-5.2.1-RELEASE). Required if `release-version` is not set!
     required: false
   platform:
-    description: The platform for which to install the Swift version (e.g. ubuntu18.04).
+    description: The platform for which to install the Swift version (e.g. ubuntu18.04). Note that the github-actions notations with a dash (e.g. ubuntu-20.04) is also valid.
     required: false
     default: ubuntu18.04
   skip-apt:

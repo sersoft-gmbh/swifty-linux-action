@@ -26,8 +26,7 @@ async function install(installBase: string, branchName: string, versionTag: stri
     const swiftSig = path.join(tempPath, "swift.tar.gz.sig");
     const allKeysFile = path.join(tempPath, "all-keys.asc");
     await core.group('Downloading files', async () => {
-        const dashlessPlatform = platform.split('-').join('');
-        const swiftURL = `https://swift.org/builds/${branchName}/${dashlessPlatform.split('.').join('')}/${versionTag}/${versionTag}-${dashlessPlatform}.tar.gz`;
+        const swiftURL = `https://swift.org/builds/${branchName}/${platform.split('.').join('')}/${versionTag}/${versionTag}-${platform}.tar.gz`;
         await Promise.all([
             tools.downloadTool(swiftURL, swiftPkg),
             tools.downloadTool(`${swiftURL}.sig`, swiftSig),
@@ -69,7 +68,7 @@ async function main() {
         swiftVersion = `swift-${swiftRelease}-RELEASE`;
     }
 
-    const swiftPlatform = core.getInput('platform');
+    const swiftPlatform = core.getInput('platform').split('-').join('');
     const skipDependencies = core.getInput('skip-apt') == 'true';
     core.endGroup();
 
@@ -77,7 +76,7 @@ async function main() {
         let dependencies: string[];
         // TODO: Add support for `yum`...
         switch (swiftPlatform) {
-            case 'ubuntu-16.04':
+            case 'ubuntu16.04':
                 dependencies = [
                     'binutils',
                     'git',
@@ -95,7 +94,7 @@ async function main() {
                     'curl',
                 ];
                 break;
-            case 'ubuntu-18.04':
+            case 'ubuntu18.04':
                 dependencies = [
                     'binutils',
                     'git',
@@ -112,7 +111,7 @@ async function main() {
                     'zlib1g-dev',
                 ];
                 break;
-            case 'ubuntu-20.04':
+            case 'ubuntu20.04':
                 dependencies = [
                     'binutils',
                     'git',
