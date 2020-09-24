@@ -29,8 +29,11 @@ jobs:
     needs: deploy-action-code
     strategy:
       matrix:
-        swift-version: [5.3, 5.2.3, 5.1]
+        swift-version: [5.3, 5.2.5]
         os-version: ['ubuntu-20.04', 'ubuntu-18.04']
+        include:
+          - swift-version: 5.1
+            os-version: ubuntu18.04
     runs-on: ${{matrix.os-version}}
     steps:
       - uses: sersoft-gmbh/SwiftyActions@master
@@ -47,8 +50,11 @@ jobs:
     needs: deploy-action-code
     strategy:
       matrix:
-        swift-version: [5.3, 5.2.3, 5.1]
+        swift-version: [5.3, 5.2.5]
         os-version: ['ubuntu-20.04', 'ubuntu-18.04']
+        include:
+          - swift-version: 5.1
+            os-version: ubuntu18.04
     runs-on: ${{matrix.os-version}}
     steps:
       - uses: sersoft-gmbh/SwiftyActions@master
