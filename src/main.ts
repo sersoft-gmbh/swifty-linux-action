@@ -69,31 +69,78 @@ async function main() {
     }
 
     const swiftPlatform = core.getInput('platform');
-    const skipApt = core.getInput('skip-apt') == 'true';
+    const skipDependencies = core.getInput('skip-apt') == 'true';
     core.endGroup();
 
-    if (!skipApt) {
-        await core.group('Install dependencies', async () => {
-            await runCmd('sudo', ['apt-get', '-q', 'update']);
-            await runCmd('sudo', [
-                'apt-get', '-q', 'install', '-y',
-                'libatomic1',
-                'libbsd0',
-                'libcurl4',
-                'libxml2',
-                'libedit2',
-                'libsqlite3-0',
-                'libc6-dev',
-                'binutils',
-                'libgcc-5-dev',
-                'libstdc++-5-dev',
-                'libpython2.7',
-                'tzdata',
-                'git',
-                'pkg-config',
-                'curl',
-            ]);
-        });
+    if (!skipDependencies) {
+        let dependencies: string[];
+        // TODO: Add support for `yum`...
+        switch (swiftPlatform) {
+            case 'ubuntu-16.04':
+                dependencies = [
+                    'binutils',
+                    'git',
+                    'libc6-dev',
+                    'libcurl3',
+                    'libedit2',
+                    'libgcc-5-dev',
+                    'libpython2.7',
+                    'libsqlite3-0',
+                    'libstdc++-5-dev',
+                    'libxml2',
+                    'pkg-config',
+                    'tzdata',
+                    'zlib1g-dev',
+                    'curl',
+                ];
+                break;
+            case 'ubuntu-18.04':
+                dependencies = [
+                    'binutils',
+                    'git',
+                    'libc6-dev',
+                    'libcurl4',
+                    'libedit2',
+                    'libgcc-5-dev',
+                    'libpython2.7',
+                    'libsqlite3-0',
+                    'libstdc++-5-dev',
+                    'libxml2',
+                    'pkg-config',
+                    'tzdata',
+                    'zlib1g-dev',
+                ];
+                break;
+            case 'ubuntu-20.04':
+                dependencies = [
+                    'binutils',
+                    'git',
+                    'gnupg2',
+                    'libc6-dev',
+                    'libcurl4',
+                    'libedit2',
+                    'libgcc-9-dev',
+                    'libpython2.7',
+                    'libsqlite3-0',
+                    'libstdc++-9-dev',
+                    'libxml2',
+                    'libz3-dev',
+                    'pkg-config',
+                    'tzdata',
+                    'zlib1g-dev',
+                ];
+                break;
+            default:
+                dependencies = [];
+                core.info(`Unknown platform '${swiftPlatform}' for dependency installation. Not installing anything...`);
+                break;
+        }
+        if (dependencies.length > 0) {
+            await core.group('Install dependencies', async () => {
+                await runCmd('sudo', ['apt-get', '-q', 'update']);
+                await runCmd('sudo', ['apt-get', '-q', 'install', '-y', ...dependencies]);
+            });
+        }
     } else {
         core.info("Skipping installation of dependencies...");
     }
