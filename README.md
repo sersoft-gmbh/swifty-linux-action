@@ -51,7 +51,7 @@ with:
 ```
 
 However, SwiftyActions also supports installing other snapshots using the `branch-name` and `version-tag` input parameters.
-So, to e.g. install a the Swift 5.2 development snapshot built on 14th of April 2020, use the following snippet:
+So, to e.g. install the Swift 5.2 development snapshot built on 14th of April 2020, use the following snippet:
 
 ```yaml
 uses: sersoft-gmbh/SwiftyActions@v1
