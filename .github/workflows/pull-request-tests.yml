@@ -5,7 +5,7 @@ on:
     branches: [ master ]
 
 jobs:
-  release-local:
+  test-release-local:
     strategy:
       matrix:
         swift-version: [ 5.3, 5.2.5 ]
@@ -30,7 +30,7 @@ jobs:
       - name: Check installed version
         run: swift --version | grep -q ${{matrix.swift-version}}
 
-  branch-local:
+  test-branch-local:
     strategy:
       matrix:
         swift-version: [ 5.3, 5.2.5 ]
@@ -55,3 +55,23 @@ jobs:
         run: test -d ${{steps.install-swift.outputs.install-path}}
       - name: Check installed version
         run: swift --version | grep -q ${{matrix.swift-version}}
+
+  test-release-noplatform-local:
+    strategy:
+      matrix:
+        os-version: [ 'ubuntu-20.04', 'ubuntu-18.04' ]
+    runs-on: ${{matrix.os-version}}
+    steps:
+      - name: Install dependencies
+        run: sudo npm i -g @zeit/ncc typescript
+      - uses: actions/checkout@v2.3.4
+      - name: Generate action code
+        run: npm run deploy
+      - uses: './'
+        id: install-swift
+        with:
+          release-version: 5.4
+      - name: Check installed path
+        run: test -d ${{steps.install-swift.outputs.install-path}}
+      - name: Check installed version
+        run: swift --version | grep -q '5.4'

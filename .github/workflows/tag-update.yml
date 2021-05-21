@@ -4,7 +4,7 @@ on:
   release:
     types:
       - published
-      - updated
+      - edited
 
 jobs:
   update-tags:

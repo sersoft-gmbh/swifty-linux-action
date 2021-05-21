@@ -14,7 +14,6 @@ inputs:
   platform:
     description: The platform for which to install the Swift version (e.g. ubuntu18.04). Note that the github-actions notations with a dash (e.g. ubuntu-20.04) is also valid.
     required: false
-    default: ubuntu18.04
   skip-apt:
     description: Whether or not the installation of dependencies (via apt) should be skipped.
     required: false

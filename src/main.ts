@@ -68,7 +68,13 @@ async function main() {
         swiftVersion = `swift-${swiftRelease}-RELEASE`;
     }
 
-    const swiftPlatform = core.getInput('platform').split('-').join('');
+    let swiftPlatform = core.getInput('platform')?.split('-').join('');
+    if (!swiftPlatform) {
+        core.info('Parameter `platform` was not set. Trying to determine platform...');
+        const releaseInfo = await runCmd('lsb_release', ['-sir']);
+        swiftPlatform = releaseInfo.split('\n').map(s => s.toLowerCase()).join('');
+        core.info(`Using ${swiftPlatform} as platform.`);
+    }
     const skipDependencies = core.getInput('skip-apt') == 'true';
     core.endGroup();
 

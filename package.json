@@ -1,5 +1,5 @@
 {
-  "name": "SwiftyActions",
+  "name": "swifty-actions",
   "version": "1.0.0",
   "description": "Sets up a Swift environment on linux",
   "main": "dist/index.js",
