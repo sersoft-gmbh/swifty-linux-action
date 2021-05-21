@@ -70,3 +70,19 @@ jobs:
         run: test -d ${{steps.install-swift.outputs.install-path}}
       - name: Check installed version
         run: swift --version | grep -q ${{matrix.swift-version}}
+
+  test-release-noplatform-master:
+    needs: deploy-action-code
+    strategy:
+      matrix:
+        os-version: [ 'ubuntu-20.04', 'ubuntu-18.04' ]
+    runs-on: ${{matrix.os-version}}
+    steps:
+      - uses: sersoft-gmbh/SwiftyActions@master
+        id: install-swift
+        with:
+          release-version: 5.4
+      - name: Check installed path
+        run: test -d ${{steps.install-swift.outputs.install-path}}
+      - name: Check installed version
+        run: swift --version | grep -q '5.4'
