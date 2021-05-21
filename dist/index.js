@@ -4785,6 +4785,7 @@ async function install(installBase, branchName, versionTag, platform) {
     await core.group('Cleaning up', async () => await io.rmRF(tempPath));
 }
 async function main() {
+    var _a;
     switch (process.platform) {
         case "linux": break;
         default: throw new Error("This action can only install Swift on linux!");
@@ -4801,7 +4802,13 @@ async function main() {
         swiftBranch = `swift-${swiftRelease}-release`;
         swiftVersion = `swift-${swiftRelease}-RELEASE`;
     }
-    const swiftPlatform = core.getInput('platform').split('-').join('');
+    let swiftPlatform = (_a = core.getInput('platform')) === null || _a === void 0 ? void 0 : _a.split('-').join('');
+    if (!swiftPlatform) {
+        core.info('Parameter `platform` was not set. Trying to determine platform...');
+        const releaseInfo = await runCmd('lsb_release', ['-sir']);
+        swiftPlatform = releaseInfo.split('\n').map(s => s.toLowerCase()).join('');
+        core.info(`Using ${swiftPlatform} as platform.`);
+    }
     const skipDependencies = core.getInput('skip-apt') == 'true';
     core.endGroup();
     if (!skipDependencies) {
