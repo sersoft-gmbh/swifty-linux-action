@@ -19,19 +19,14 @@ async function runCmd(cmd: string, args?: string[]): Promise<string> {
 }
 
 async function findMatchingRelease(releaseVersion: string, token: string): Promise<string> {
-    interface IRefNode {
-        name: string;
-    }
-    interface IRef {
-        nodes?: IRefNode[];
-    }
-    interface IRepository {
-        refs?: IRef;
-    }
-    interface IRepositoryData {
-        repository?: IRepository;
-    }
-    const resp = await github.getOctokit(token).graphql<GraphQlQueryResponse<IRepositoryData>>(`
+    type RepositoryData = {
+        repository?: {
+            refs?: {
+                nodes?: { name: string; }[];
+            };
+        };
+    };
+    const data = await github.getOctokit(token).graphql<RepositoryData>(`
         query getTags($tagQuery: String!) {
             repository(owner: "apple", name: "swift") {
                 refs(refPrefix: "refs/tags/", first: 100, query: $tagQuery, orderBy: { field: ALPHABETICAL, direction: DESC }) {
@@ -42,12 +37,7 @@ async function findMatchingRelease(releaseVersion: string, token: string): Promi
             }
         }
     `, { tagQuery: `swift-${releaseVersion}` });
-    if (resp.errors) {
-        core.error('GraphQL query failed: ' + JSON.stringify(resp.errors));
-    } else {
-        core.debug('GraphQL query response: ' + JSON.stringify(resp));
-    }
-    const tagNames = resp.data.repository?.refs?.nodes?.map(n => n.name)
+    const tagNames = data.repository?.refs?.nodes?.map(n => n.name)
         .filter(n => n.toLowerCase().endsWith('-release')) ?? [];
     if (tagNames.length <= 0) return releaseVersion;
     return tagNames[0].split('-')[1];
