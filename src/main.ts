@@ -34,16 +34,16 @@ async function findMatchingRelease(releaseVersion: string, token: string): Promi
         data: IRepositoryData;
     }
     const resp = await github.getOctokit(token).graphql(`
-        query getTags($query: String!) {
+        query getTags($tagQuery: String!) {
             repository(owner: "apple", name: "swift") {
-                refs(refPrefix: "refs/tags/", first: 100, query: $query, orderBy: { field: ALPHABETICAL, direction: DESC }) {
+                refs(refPrefix: "refs/tags/", first: 100, query: $tagQuery, orderBy: { field: ALPHABETICAL, direction: DESC }) {
                     nodes {
                         name
                     }
                 } 
             }
         }
-    `, { query: `swift-${releaseVersion}` }) as IGraphResponse;
+    `, { tagQuery: `swift-${releaseVersion}` }) as IGraphResponse;
     const tagNames = resp.data.repository?.refs?.nodes?.map(n => n.name)
         .filter(n => n.toLowerCase().endsWith('-release')) ?? [];
     if (tagNames.length <= 0) return releaseVersion;
