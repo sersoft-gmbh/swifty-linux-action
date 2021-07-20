@@ -19,7 +19,7 @@ inputs:
     required: false
     default: 'false'
   github-token:
-    description: Only required if `release-version` should automatically resolve to the newest matching version. Can be set to `${{secrets.GITHUB_TOKEN}}`.
+    description: Only required if `release-version` should automatically resolve to the newest matching version. Can be set to `secrets.GITHUB_TOKEN`.
     required: false
 outputs:
   install-path:
