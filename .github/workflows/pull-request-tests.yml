@@ -10,14 +10,11 @@ jobs:
       matrix:
         swift-version: [5.3, 5.2.5]
         os-version: ['ubuntu-20.04', 'ubuntu-18.04']
-        token: ['']
         include:
           - swift-version: 5.1
             os-version: ubuntu-18.04
-            token: ''
           - swift-version: 5.4
             os-version: ubuntu-20.04
-            token: ${{secrets.GITHUB_TOKEN}}
     runs-on: ${{matrix.os-version}}
     steps:
       - name: Install dependencies
@@ -30,7 +27,7 @@ jobs:
         with:
           release-version: ${{matrix.swift-version}}
           platform: ${{matrix.os-version}}
-          github-token: ${{matrix.token}}
+          github-token: ${{secrets.GITHUB_TOKEN}}
       - name: Check installed path
         run: test -d ${{steps.install-swift.outputs.install-path}}
       - name: Check installed version
@@ -66,9 +63,6 @@ jobs:
     strategy:
       matrix:
         os-version: [ 'ubuntu-20.04', 'ubuntu-18.04' ]
-        token:
-          - ''
-          - ${{secrets.GITHUB_TOKEN}}
     runs-on: ${{matrix.os-version}}
     steps:
       - name: Install dependencies
@@ -80,7 +74,7 @@ jobs:
         id: install-swift
         with:
           release-version: 5.4
-          github-token: ${{matrix.token}}
+          github-token: ${{secrets.GITHUB_TOKEN}}
       - name: Check installed path
         run: test -d ${{steps.install-swift.outputs.install-path}}
       - name: Check installed version
