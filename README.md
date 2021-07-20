@@ -10,7 +10,8 @@ Note that Linux is currently the only system supported by this action. Running i
 
 ### `release-version`
 
-The (released) Swift version (e.g. `5.2.2`) to install.<br/>
+The (released) Swift version (e.g. `5.4`) to install.<br/>
+If `github-token` is also set, it will automatically resolve to the latest matching version.<br/>
 *Note:* If given, `branch-name` and `version-tag` are ignored.
 
 ### `branch-name`
@@ -33,6 +34,10 @@ If not given, the action tries to determine the system it currently runs on. Not
 Whether the installation of dependencies (via apt) should be skipped.<br/>
 Default: `false`
 
+### `github-token`
+
+The token to use for searching for the latest matching release. Can be set to `${{secrets.GITHUB_TOKEN}}`.
+
 ## Outputs
 
 ### `install-path`
@@ -40,18 +45,36 @@ Default: `false`
 The path where Swift was installed.<br/>
 Note that this can usually be ignored, since SwiftyActions adds the `${{install-path}}/usr/bin` to the `PATH` environment variable.
 
+### `full-version`
+
+The full version of Swift that was installed (e.g. `swift-5.4.2-RELEASE`).<br/>
+This can be used to narrow down for example caches across builds.
+
+
 ## Example Usage
 
 In general, the `release-version` input parameter should be used to install a final release of Swift. 
-To e.g. install Swift 5.2.2, use the following snippet:
+To for example install Swift 5.4.2, use the following snippet:
 ```yaml
 uses: sersoft-gmbh/SwiftyActions@v1
 with:
-    release-version: 5.2.2
+    release-version: 5.4.2
+```
+
+If you automatically want to install the latest matching version, also provide the `github-token` input.
+This will search for the latest matching release using the following rules:
+- `'5'` -> Finds the latest `swift-5.x.y` release.
+- `'5.4` -> Finds the latest `swift-5.4.x` release.
+To for example install the latest Swift 5.4.x release\, use the following snippet:
+```yaml
+uses: sersoft-gmbh/SwiftyActions@v1
+with:
+    release-version: '5.4'
+    github-token: ${{secrets.GITHUB_TOKEN}}
 ```
 
 However, SwiftyActions also supports installing other snapshots using the `branch-name` and `version-tag` input parameters.
-So, to e.g. install the Swift 5.2 development snapshot built on 14th of April 2020, use the following snippet:
+So, to for example install the Swift 5.2 development snapshot built on 14th of April 2020, use the following snippet:
 
 ```yaml
 uses: sersoft-gmbh/SwiftyActions@v1

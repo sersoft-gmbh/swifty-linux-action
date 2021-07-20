@@ -1,9 +1,9 @@
 name: Install Swift on Linux
 description: Installs a Swift toolchain on Linux
-author: ser.sofgt GmbH
+author: ser.soft GmbH
 inputs:
   release-version:
-    description: The (released) Swift version (e.g. 5.2.1) to install. If given, `branch-name` and `version-tag` are ignored.
+    description: The (released) Swift version (e.g. 5.3.2) to install. If given, `branch-name` and `version-tag` are ignored. If `github-token` is also set, the action will automatically resolve it to the latest matching version (e.g. 5.3.3 for 5.3).
     required: false
   branch-name:
     description: The branch of the Swift version to install (e.g. swift-5.2.1-release). Required if `release-version` is not set!
@@ -17,10 +17,15 @@ inputs:
   skip-apt:
     description: Whether or not the installation of dependencies (via apt) should be skipped.
     required: false
-    default: false
+    default: 'false'
+  github-token:
+    description: Only required if `release-version` should automatically resolve to the newest matching version. Can be set to `${{secrets.GITHUB_TOKEN}}`.
+    required: false
 outputs:
   install-path:
     description: The path where Swift was installed.
+  full-version:
+    description: The full version that was installed (e.g. swift-5.4.2-RELEASE).
 runs:
   using: node12
   main: dist/index.js
