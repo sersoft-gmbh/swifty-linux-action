@@ -64,7 +64,8 @@ with:
 If you automatically want to install the latest matching version, also provide the `github-token` input.
 This will search for the latest matching release using the following rules:
 - `'5'` -> Finds the latest `swift-5.x.y` release.
-- `'5.4'` -> Finds the latest `swift-5.4.x` release.<br/>
+- `'5.4'` -> Finds the latest `swift-5.4.x` release.
+
 To for example install the latest Swift 5.4.x release, use the following snippet:
 ```yaml
 uses: sersoft-gmbh/SwiftyActions@v1
