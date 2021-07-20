@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as tools from '@actions/tool-cache';
 import * as io from '@actions/io';
+import * as github from '@actions/github';
 import * as fs from "fs";
 import * as util from "util";
 import * as path from "path";
@@ -14,6 +15,39 @@ async function runCmd(cmd: string, args?: string[]): Promise<string> {
         }
     });
     return stdOut;
+}
+
+async function findMatchingRelease(releaseVersion: string, token: string): Promise<string> {
+    interface IRefNode {
+        name: string;
+    }
+    interface IRef {
+        nodes?: IRefNode[];
+    }
+    interface IRepository {
+        refs?: IRef;
+    }
+    interface IRepositoryData {
+        repository?: IRepository;
+    }
+    interface IGraphResponse {
+        data: IRepositoryData;
+    }
+    const resp = await github.getOctokit(token).graphql(`
+        query getTags($query: String!) {
+            repository(owner: "apple", name: "swift") {
+                refs(refPrefix: "refs/tags/", first: 100, query: $query, orderBy: { field: ALPHABETICAL, direction: DESC }) {
+                    nodes {
+                        name
+                    }
+                } 
+            }
+        }
+    `, { query: `swift-${releaseVersion}` }) as IGraphResponse;
+    const tagNames = resp.data.repository?.refs?.nodes?.map(n => n.name)
+        .filter(n => n.toLowerCase().endsWith('-release')) ?? [];
+    if (tagNames.length <= 0) return releaseVersion;
+    return tagNames[0].split('-')[1];
 }
 
 async function install(installBase: string, branchName: string, versionTag: string, platform: string) {
@@ -56,14 +90,22 @@ async function main() {
     }
 
     core.startGroup('Validate input');
-    const swiftRelease = core.getInput('release-version');
+    const swiftReleaseInput = core.getInput('release-version');
 
+    let swiftRelease: string;
     let swiftBranch: string, swiftVersion: string;
-    if (!swiftRelease) {
+    if (!swiftReleaseInput) {
         core.info("`release-version` was not set. Requiring `branch-name` and `version-tag` parameters!");
         swiftBranch = core.getInput('branch-name', { required: true });
         swiftVersion = core.getInput('version-tag', { required: true });
+        swiftRelease = swiftReleaseInput;
     } else {
+        const token = core.getInput('github-token');
+        if (token) {
+            swiftRelease = await findMatchingRelease(swiftReleaseInput, token);
+        } else {
+            swiftRelease = swiftReleaseInput;
+        }
         swiftBranch = `swift-${swiftRelease}-release`;
         swiftVersion = `swift-${swiftRelease}-RELEASE`;
     }
@@ -75,7 +117,7 @@ async function main() {
         swiftPlatform = releaseInfo.split('\n').map(s => s.toLowerCase()).join('');
         core.info(`Using ${swiftPlatform} as platform.`);
     }
-    const skipDependencies = core.getInput('skip-apt') == 'true';
+    const skipDependencies = core.getBooleanInput('skip-apt');
     core.endGroup();
 
     if (!skipDependencies) {
@@ -174,6 +216,7 @@ async function main() {
 
     core.addPath(path.join(swiftInstallBase, '/usr/bin'));
     core.setOutput('install-path', swiftInstallBase);
+    core.setOutput('full-version', swiftBranch);
 }
 
 try {
