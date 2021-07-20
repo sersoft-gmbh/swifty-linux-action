@@ -43,7 +43,9 @@ async function findMatchingRelease(releaseVersion: string, token: string): Promi
         }
     `, { tagQuery: `swift-${releaseVersion}` });
     if (resp.errors) {
-        core.error('GraphQL Query failed: ' + resp.errors.toString());
+        core.error('GraphQL query failed: ' + resp.errors.toString());
+    } else {
+        core.debug('GraphQL query response: ' + resp.toString());
     }
     const tagNames = resp.data.repository?.refs?.nodes?.map(n => n.name)
         .filter(n => n.toLowerCase().endsWith('-release')) ?? [];
