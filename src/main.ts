@@ -6,6 +6,7 @@ import * as github from '@actions/github';
 import * as fs from "fs";
 import * as util from "util";
 import * as path from "path";
+import {GraphQlQueryResponse} from "@octokit/graphql/dist-types/types";
 
 async function runCmd(cmd: string, args?: string[]): Promise<string> {
     let stdOut = '';
@@ -30,10 +31,7 @@ async function findMatchingRelease(releaseVersion: string, token: string): Promi
     interface IRepositoryData {
         repository?: IRepository;
     }
-    interface IGraphResponse {
-        data: IRepositoryData;
-    }
-    const resp = await github.getOctokit(token).graphql(`
+    const resp = await github.getOctokit(token).graphql<GraphQlQueryResponse<IRepositoryData>>(`
         query getTags($tagQuery: String!) {
             repository(owner: "apple", name: "swift") {
                 refs(refPrefix: "refs/tags/", first: 100, query: $tagQuery, orderBy: { field: ALPHABETICAL, direction: DESC }) {
@@ -43,7 +41,10 @@ async function findMatchingRelease(releaseVersion: string, token: string): Promi
                 } 
             }
         }
-    `, { tagQuery: `swift-${releaseVersion}` }) as IGraphResponse;
+    `, { tagQuery: `swift-${releaseVersion}` });
+    if (resp.errors) {
+        core.error('GraphQL Query failed: ' + resp.errors.toString());
+    }
     const tagNames = resp.data.repository?.refs?.nodes?.map(n => n.name)
         .filter(n => n.toLowerCase().endsWith('-release')) ?? [];
     if (tagNames.length <= 0) return releaseVersion;
