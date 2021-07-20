@@ -6,7 +6,6 @@ import * as github from '@actions/github';
 import * as fs from "fs";
 import * as util from "util";
 import * as path from "path";
-import {GraphQlQueryResponse} from "@octokit/graphql/dist-types/types";
 
 async function runCmd(cmd: string, args?: string[]): Promise<string> {
     let stdOut = '';
@@ -209,7 +208,7 @@ async function main() {
 
     core.addPath(path.join(swiftInstallBase, '/usr/bin'));
     core.setOutput('install-path', swiftInstallBase);
-    core.setOutput('full-version', swiftBranch);
+    core.setOutput('full-version', swiftVersion);
 }
 
 try {
