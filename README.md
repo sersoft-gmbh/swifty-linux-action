@@ -1,6 +1,6 @@
 # SwiftyActions
 
-![Master Deploy](https://github.com/sersoft-gmbh/SwiftyActions/workflows/Master%20Deploy/badge.svg)
+[![Deploy](https://github.com/sersoft-gmbh/SwiftyActions/actions/workflows/main-deploy.yml/badge.svg)](https://github.com/sersoft-gmbh/SwiftyActions/actions/workflows/main-deploy.yml)
 
 This action sets up a Swift environment on linux.
 
