@@ -32,10 +32,10 @@ jobs:
             git push
           fi
 
-  test-release-local:
+  test-release:
     needs: deploy-action-code
     if: always() && !failure() && !cancelled()
-    name: Test Release Installation Locally
+    name: Test Release Installation
     strategy:
       matrix:
         swift-version: [5.3, 5.2.5]
@@ -80,10 +80,10 @@ jobs:
       - name: Check installed version
         run: swift --version | grep -q ${{matrix.swift-version}}
 
-  test-branch-local:
+  test-branch:
     needs: deploy-action-code
     if: always() && !failure() && !cancelled()
-    name: Test Branch Installation Locally
+    name: Test Branch Installation
     strategy:
       matrix:
         swift-version: [ 5.3, 5.2.5 ]
@@ -126,7 +126,10 @@ jobs:
       - name: Check installed version
         run: swift --version | grep -q ${{matrix.swift-version}}
 
-  test-release-noplatform-local:
+  test-release-noplatform:
+    needs: deploy-action-code
+    if: always() && !failure() && !cancelled()
+    name: Test Release Installation w/o Platform
     strategy:
       matrix:
         os-version: [ 'ubuntu-20.04', 'ubuntu-18.04' ]
