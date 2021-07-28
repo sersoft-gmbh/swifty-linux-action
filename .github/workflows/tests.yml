@@ -102,7 +102,7 @@ jobs:
         run: npm run deploy
       - uses: sersoft-gmbh/swifty-linux-action@master
         if: github.event_name == 'push'
-        id: install-swift-local
+        id: install-swift-master
         with:
           branch-name: swift-${{matrix.swift-version}}-release
           version-tag: swift-${{matrix.swift-version}}-RELEASE
@@ -141,7 +141,7 @@ jobs:
       - name: Generate action code
         if: github.event_name == 'pull_request'
         run: npm run deploy
-      - uses: './'
+      - uses: sersoft-gmbh/swifty-linux-action@master
         if: github.event_name == 'push'
         id: install-swift-master
         with:
