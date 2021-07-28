@@ -1,6 +1,6 @@
 # Swifty Linux Action
 
-[![Deploy](https://github.com/sersoft-gmbh/SwiftyActions/actions/workflows/main-deploy.yml/badge.svg)](https://github.com/sersoft-gmbh/SwiftyActions/actions/workflows/main-deploy.yml)
+[![Tests](https://github.com/sersoft-gmbh/swifty-linux-action/actions/workflows/tests.yml/badge.svg)](https://github.com/sersoft-gmbh/swifty-linux-action/actions/workflows/tests.yml)
 
 This action sets up a Swift environment on Linux.
 
@@ -43,7 +43,7 @@ The token to use for searching for the latest matching release. Can be set to `$
 ### `install-path`
 
 The path where Swift was installed.<br/>
-Note that this can usually be ignored, since SwiftyActions adds the `${{install-path}}/usr/bin` to the `PATH` environment variable.
+Note that this can usually be ignored, since swifty-linux-action adds the `${{install-path}}/usr/bin` to the `PATH` environment variable.
 
 ### `full-version`
 
@@ -56,7 +56,7 @@ This can be used to narrow down for example caches across builds.
 In general, the `release-version` input parameter should be used to install a final release of Swift.<br/>
 To for example install Swift 5.4.2, use the following snippet:
 ```yaml
-uses: sersoft-gmbh/SwiftyActions@v1
+uses: sersoft-gmbh/swifty-linux-action@v1
 with:
     release-version: 5.4.2
 ```
@@ -68,17 +68,17 @@ This will search for the latest matching release using the following rules:
 
 To for example install the latest Swift 5.4.x release, use the following snippet:
 ```yaml
-uses: sersoft-gmbh/SwiftyActions@v1
+uses: sersoft-gmbh/swifty-linux-action@v1
 with:
     release-version: '5.4'
     github-token: ${{secrets.GITHUB_TOKEN}}
 ```
 
-However, SwiftyActions also supports installing other snapshots using the `branch-name` and `version-tag` input parameters.<br/>
+However, swifty-linux-action also supports installing other snapshots using the `branch-name` and `version-tag` input parameters.<br/>
 So, to for example install the Swift 5.2 development snapshot built on 14th of April 2020, use the following snippet:
 
 ```yaml
-uses: sersoft-gmbh/SwiftyActions@v1
+uses: sersoft-gmbh/swifty-linux-action@v1
 with:
     branch-name: swift-5.2-branch
     version-tag: swift-5.2-DEVELOPMENT-SNAPSHOT-2020-04-14-a
