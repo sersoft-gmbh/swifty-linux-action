@@ -1,8 +1,8 @@
-# SwiftyActions
+# Swifty Linux Action
 
 [![Deploy](https://github.com/sersoft-gmbh/SwiftyActions/actions/workflows/main-deploy.yml/badge.svg)](https://github.com/sersoft-gmbh/SwiftyActions/actions/workflows/main-deploy.yml)
 
-This action sets up a Swift environment on linux.
+This action sets up a Swift environment on Linux.
 
 Note that Linux is currently the only system supported by this action. Running it on other platforms will fail.
 

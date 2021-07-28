@@ -1,7 +1,7 @@
 {
-  "name": "swifty-actions",
+  "name": "swifty-linux-action",
   "version": "1.0.0",
-  "description": "Sets up a Swift environment on linux",
+  "description": "Sets up a Swift environment on Linux",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sersoft-gmbh/SwiftyActions.git"
+    "url": "git+https://github.com/sersoft-gmbh/swifty-linux-action.git"
   },
   "keywords": [
     "Swift",
@@ -19,9 +19,9 @@
   "author": "ser.soft GmbH",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/sersoft-gmbh/SwiftyActions/issues"
+    "url": "https://github.com/sersoft-gmbh/swifty-linux-action/issues"
   },
-  "homepage": "https://github.com/sersoft-gmbh/SwiftyActions#readme",
+  "homepage": "https://github.com/sersoft-gmbh/swifty-linux-action#readme",
   "dependencies": {
     "@actions/core": "^1.4.0",
     "@actions/exec": "^1.1.0",
