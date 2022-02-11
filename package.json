@@ -30,6 +30,6 @@
     "@actions/tool-cache": "^1.7.1"
   },
   "devDependencies": {
-    "@types/node": "^12.20.44"
+    "@types/node": "^12.20.45"
   }
 }
