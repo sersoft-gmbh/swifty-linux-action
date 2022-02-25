@@ -27,7 +27,7 @@ outputs:
   full-version:
     description: The full version that was installed (e.g. swift-5.4.2-RELEASE).
 runs:
-  using: node12
+  using: node16
   main: dist/index.js
 branding:
   color: orange
