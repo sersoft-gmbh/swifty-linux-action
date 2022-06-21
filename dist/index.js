@@ -31,7 +31,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(6024));
-const exec = __importStar(__nccwpck_require__(2423));
+const exec_1 = __nccwpck_require__(2423);
 const tools = __importStar(__nccwpck_require__(3594));
 const io = __importStar(__nccwpck_require__(6202));
 const github = __importStar(__nccwpck_require__(5016));
@@ -39,13 +39,8 @@ const fs = __importStar(__nccwpck_require__(7147));
 const util = __importStar(__nccwpck_require__(3837));
 const path = __importStar(__nccwpck_require__(1017));
 async function runCmd(cmd, args) {
-    let stdOut = '';
-    await exec.exec(cmd, args, {
-        listeners: {
-            stdout: (data) => stdOut += data.toString()
-        }
-    });
-    return stdOut;
+    const output = await (0, exec_1.getExecOutput)(cmd, args);
+    return output.stdout;
 }
 async function findMatchingRelease(releaseVersion, token) {
     var _a, _b, _c, _d;
