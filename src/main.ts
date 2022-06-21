@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import * as exec from '@actions/exec';
+import {getExecOutput} from "@actions/exec";
 import * as tools from '@actions/tool-cache';
 import * as io from '@actions/io';
 import * as github from '@actions/github';
@@ -7,14 +7,10 @@ import * as fs from "fs";
 import * as util from "util";
 import * as path from "path";
 
+
 async function runCmd(cmd: string, args?: string[]): Promise<string> {
-    let stdOut = '';
-    await exec.exec(cmd, args, {
-        listeners: {
-            stdout: (data) => stdOut += data.toString()
-        }
-    });
-    return stdOut;
+    const output = await getExecOutput(cmd, args);
+    return output.stdout;
 }
 
 async function findMatchingRelease(releaseVersion: string, token: string): Promise<string> {

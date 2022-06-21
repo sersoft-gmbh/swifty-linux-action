@@ -1,6 +1,6 @@
 {
   "name": "swifty-linux-action",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Sets up a Swift environment on Linux",
   "main": "dist/index.js",
   "scripts": {
