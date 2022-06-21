@@ -38,10 +38,10 @@ jobs:
     name: Test Release Installation
     strategy:
       matrix:
-        swift-version: [5.3, 5.2.5]
+        swift-version: [5.5, 5.6.1]
         os-version: ['ubuntu-20.04', 'ubuntu-18.04']
         include:
-          - swift-version: 5.1
+          - swift-version: 5.3
             os-version: ubuntu-18.04
           - swift-version: 5.4
             os-version: ubuntu-20.04
@@ -86,10 +86,10 @@ jobs:
     name: Test Branch Installation
     strategy:
       matrix:
-        swift-version: [ 5.3, 5.2.5 ]
+        swift-version: [5.5, 5.6.1]
         os-version: [ 'ubuntu-20.04', 'ubuntu-18.04' ]
         include:
-          - swift-version: 5.1
+          - swift-version: 5.4
             os-version: ubuntu-18.04
     runs-on: ${{matrix.os-version}}
     steps:
@@ -134,7 +134,7 @@ jobs:
       matrix:
         os-version: [ 'ubuntu-20.04', 'ubuntu-18.04' ]
     env:
-      INPUT_SWIFT_VERSION: 5.4
+      INPUT_SWIFT_VERSION: 5.6
     runs-on: ${{matrix.os-version}}
     steps:
       - name: Install dependencies
