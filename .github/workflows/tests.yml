@@ -132,7 +132,7 @@ jobs:
       matrix:
         os-version: [ 'ubuntu-22.04', 'ubuntu-20.04' ]
     env:
-      INPUT_SWIFT_VERSION: 5.6
+      INPUT_SWIFT_VERSION: 5.7
     runs-on: ${{matrix.os-version}}
     steps:
       - name: Install dependencies
