@@ -69,7 +69,7 @@ async function install(installBase, branchName, versionTag, platform) {
     const swiftSig = path.join(tempPath, "swift.tar.gz.sig");
     const allKeysFile = path.join(tempPath, "all-keys.asc");
     await core.group('Downloading files', async () => {
-        const swiftURL = `https://download.swift.org/builds/${branchName}/${platform.split('.').join('')}/${versionTag}/${versionTag}-${platform}.tar.gz`;
+        const swiftURL = `https://download.swift.org/${branchName}/${platform.split('.').join('')}/${versionTag}/${versionTag}-${platform}.tar.gz`;
         await Promise.all([
             tools.downloadTool(swiftURL, swiftPkg),
             tools.downloadTool(`${swiftURL}.sig`, swiftSig),
