@@ -69,9 +69,9 @@ jobs:
       - id: install-swift
         run: |
           if [ '${{github.event_name}}' == 'push' ]; then
-            echo "::set-output name=executed-command::${{steps.install-swift-master.outputs.install-path}}"
+            echo 'executed-command=${{steps.install-swift-master.outputs.install-path}}' >> "${GITHUB_OUTPUT}"
           else
-            echo "::set-output name=executed-command::${{steps.install-swift-local.outputs.install-path}}"
+            echo 'executed-command=${{steps.install-swift-local.outputs.install-path}}' >> "${GITHUB_OUTPUT}"
           fi
       - name: Check installed path
         run: test -d ${{steps.install-swift.outputs.install-path}}
@@ -115,9 +115,9 @@ jobs:
       - id: install-swift
         run: |
           if [ '${{github.event_name}}' == 'push' ]; then
-            echo "::set-output name=executed-command::${{steps.install-swift-master.outputs.install-path}}"
+            echo 'executed-command=${{steps.install-swift-master.outputs.install-path}}' >> "${GITHUB_OUTPUT}"
           else
-            echo "::set-output name=executed-command::${{steps.install-swift-local.outputs.install-path}}"
+            echo 'executed-command=${{steps.install-swift-local.outputs.install-path}}' >> "${GITHUB_OUTPUT}"
           fi
       - name: Check installed path
         run: test -d ${{steps.install-swift.outputs.install-path}}
@@ -157,9 +157,9 @@ jobs:
       - id: install-swift
         run: |
           if [ '${{github.event_name}}' == 'push' ]; then
-            echo "::set-output name=executed-command::${{steps.install-swift-master.outputs.install-path}}"
+            echo 'executed-command=${{steps.install-swift-master.outputs.install-path}}' >> "${GITHUB_OUTPUT}"
           else
-            echo "::set-output name=executed-command::${{steps.install-swift-local.outputs.install-path}}"
+            echo 'executed-command=${{steps.install-swift-local.outputs.install-path}}' >> "${GITHUB_OUTPUT}"
           fi
       - name: Check installed path
         run: test -d ${{steps.install-swift.outputs.install-path}}
