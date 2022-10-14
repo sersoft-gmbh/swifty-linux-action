@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy-action-code:
-    if: github.event_name == 'push'
+    if: ${{ github.event_name == 'push' }}
     name: Deploy Action Code
     runs-on: ubuntu-latest
     steps:
@@ -17,151 +17,175 @@ jobs:
         run: sudo npm i -g typescript @vercel/ncc
       - uses: actions/checkout@v3.1.0
         with:
-          token: ${{secrets.BOT_TOKEN}}
+          token: ${{ secrets.BOT_TOKEN }}
       - name: Generate action code
         run: npm run deploy
       - name: Configure repository
+        env:
+          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
         run: |
-          git config user.name "${{secrets.BOT_USERNAME}}"
-          git config user.email "${{secrets.BOT_USERNAME}}@users.noreply.github.com"
+          git config user.name "${BOT_USERNAME}"
+          git config user.email "${BOT_USERNAME}@users.noreply.github.com"
       - name: Commit changes
         run: |
           if ! git diff --exit-code --quiet; then
             git add .
-            git commit -m "[AUTO] Update generated code"
+            git commit -m '[AUTO] Update generated code'
             git push
           fi
 
   test-release:
     needs: deploy-action-code
-    if: always() && !failure() && !cancelled()
+    if: ${{ always() && !failure() && !cancelled() }}
     name: Test Release Installation
     strategy:
       matrix:
-        swift-version: [5.5, 5.6.2]
-        os-version: ['ubuntu-20.04']
+        swift-version: [ 5.5, 5.6.2 ]
+        os-version: [ 'ubuntu-20.04' ]
         include:
           - swift-version: 5.7
             os-version: ubuntu-22.04
-    runs-on: ${{matrix.os-version}}
+    runs-on: ${{ matrix.os-version }}
     steps:
       - name: Install dependencies
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         run: sudo npm i -g typescript @vercel/ncc
       - uses: actions/checkout@v3.1.0
       - name: Generate action code
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         run: npm run deploy
       - uses: sersoft-gmbh/swifty-linux-action@master
-        if: github.event_name == 'push'
+        if: ${{ github.event_name == 'push' }}
         id: install-swift-master
         with:
-          release-version: ${{matrix.swift-version}}
-          platform: ${{matrix.os-version}}
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          release-version: ${{ matrix.swift-version }}
+          platform: ${{ matrix.os-version }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: './'
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         id: install-swift-local
         with:
-          release-version: ${{matrix.swift-version}}
-          platform: ${{matrix.os-version}}
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          release-version: ${{ matrix.swift-version }}
+          platform: ${{ matrix.os-version }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - id: install-swift
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BRANCH_INSTALL_PATH: ${{ steps.install-swift-master.outputs.install-path }}
+          LOCAL_INSTALL_PATH: ${{ steps.install-swift-local.outputs.install-path }}
         run: |
-          if [ '${{github.event_name}}' == 'push' ]; then
-            echo 'executed-command=${{steps.install-swift-master.outputs.install-path}}' >> "${GITHUB_OUTPUT}"
+          if [ "${EVENT_NAME}" == 'push' ]; then
+            echo "install-path=${BRANCH_INSTALL_PATH}" >> "${GITHUB_OUTPUT}"
           else
-            echo 'executed-command=${{steps.install-swift-local.outputs.install-path}}' >> "${GITHUB_OUTPUT}"
+            echo "install-path=${LOCAL_INSTALL_PATH}" >> "${GITHUB_OUTPUT}"
           fi
       - name: Check installed path
-        run: test -d ${{steps.install-swift.outputs.install-path}}
+        env:
+          INSTALL_PATH: ${{ steps.install-swift.outputs.install-path }}
+        run: test -d "${INSTALL_PATH}"
       - name: Check installed version
-        run: swift --version | grep -q ${{matrix.swift-version}}
+        env:
+          EXPECTED_VERSION: ${{ matrix.swift-version }}
+        run: swift --version | grep -q "${EXPECTED_VERSION}"
 
   test-branch:
     needs: deploy-action-code
-    if: always() && !failure() && !cancelled()
+    if: ${{ always() && !failure() && !cancelled() }}
     name: Test Branch Installation
     strategy:
       matrix:
-        swift-version: [5.5, 5.6.2]
-        os-version: ['ubuntu-20.04']
+        swift-version: [ 5.5, 5.6.2 ]
+        os-version: [ 'ubuntu-20.04' ]
         include:
           - swift-version: 5.7
             os-version: ubuntu-22.04
-    runs-on: ${{matrix.os-version}}
+    runs-on: ${{ matrix.os-version }}
     steps:
       - name: Install dependencies
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         run: sudo npm i -g typescript @vercel/ncc
       - uses: actions/checkout@v3.1.0
       - name: Generate action code
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         run: npm run deploy
       - uses: sersoft-gmbh/swifty-linux-action@master
-        if: github.event_name == 'push'
+        if: ${{ github.event_name == 'push' }}
         id: install-swift-master
         with:
-          branch-name: swift-${{matrix.swift-version}}-release
-          version-tag: swift-${{matrix.swift-version}}-RELEASE
-          platform: ${{matrix.os-version}}
+          branch-name: swift-${{ matrix.swift-version }}-release
+          version-tag: swift-${{ matrix.swift-version }}-RELEASE
+          platform: ${{ matrix.os-version }}
       - uses: './'
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         id: install-swift-local
         with:
-          branch-name: swift-${{matrix.swift-version}}-release
-          version-tag: swift-${{matrix.swift-version}}-RELEASE
-          platform: ${{matrix.os-version}}
+          branch-name: swift-${{ matrix.swift-version }}-release
+          version-tag: swift-${{ matrix.swift-version }}-RELEASE
+          platform: ${{ matrix.os-version }}
       - id: install-swift
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BRANCH_INSTALL_PATH: ${{ steps.install-swift-master.outputs.install-path }}
+          LOCAL_INSTALL_PATH: ${{ steps.install-swift-local.outputs.install-path }}
         run: |
-          if [ '${{github.event_name}}' == 'push' ]; then
-            echo 'executed-command=${{steps.install-swift-master.outputs.install-path}}' >> "${GITHUB_OUTPUT}"
+          if [ "${EVENT_NAME}" == 'push' ]; then
+            echo "install-path=${BRANCH_INSTALL_PATH}" >> "${GITHUB_OUTPUT}"
           else
-            echo 'executed-command=${{steps.install-swift-local.outputs.install-path}}' >> "${GITHUB_OUTPUT}"
+            echo "install-path=${LOCAL_INSTALL_PATH}" >> "${GITHUB_OUTPUT}"
           fi
       - name: Check installed path
-        run: test -d ${{steps.install-swift.outputs.install-path}}
+        env:
+          INSTALL_PATH: ${{ steps.install-swift.outputs.install-path }}
+        run: test -d "${INSTALL_PATH}"
       - name: Check installed version
-        run: swift --version | grep -q ${{matrix.swift-version}}
+        env:
+          EXPECTED_VERSION: ${{ matrix.swift-version }}
+        run: swift --version | grep -q "${EXPECTED_VERSION}"
 
   test-release-noplatform:
     needs: deploy-action-code
-    if: always() && !failure() && !cancelled()
+    if: ${{ always() && !failure() && !cancelled() }}
     name: Test Release Installation w/o Platform
     strategy:
       matrix:
         os-version: [ 'ubuntu-22.04', 'ubuntu-20.04' ]
     env:
       INPUT_SWIFT_VERSION: 5.7
-    runs-on: ${{matrix.os-version}}
+    runs-on: ${{ matrix.os-version }}
     steps:
       - name: Install dependencies
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         run: sudo npm i -g typescript @vercel/ncc
       - uses: actions/checkout@v3.1.0
       - name: Generate action code
-        if: github.event_name == 'pull_request'
+        if: ${{ github.event_name == 'pull_request' }}
         run: npm run deploy
       - uses: sersoft-gmbh/swifty-linux-action@master
-        if: github.event_name == 'push'
+        if: ${{ github.event_name == 'push' }}
         id: install-swift-master
         with:
-          release-version: ${{env.INPUT_SWIFT_VERSION}}
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          release-version: ${{ env.INPUT_SWIFT_VERSION }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: './'
         if: github.event_name == 'pull_request'
         id: install-swift-local
         with:
-          release-version: ${{env.INPUT_SWIFT_VERSION}}
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          release-version: ${{ env.INPUT_SWIFT_VERSION }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - id: install-swift
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BRANCH_INSTALL_PATH: ${{ steps.install-swift-master.outputs.install-path }}
+          LOCAL_INSTALL_PATH: ${{ steps.install-swift-local.outputs.install-path }}
         run: |
-          if [ '${{github.event_name}}' == 'push' ]; then
-            echo 'executed-command=${{steps.install-swift-master.outputs.install-path}}' >> "${GITHUB_OUTPUT}"
+          if [ "${EVENT_NAME}" == 'push' ]; then
+            echo "install-path=${BRANCH_INSTALL_PATH}" >> "${GITHUB_OUTPUT}"
           else
-            echo 'executed-command=${{steps.install-swift-local.outputs.install-path}}' >> "${GITHUB_OUTPUT}"
+            echo "install-path=${LOCAL_INSTALL_PATH}" >> "${GITHUB_OUTPUT}"
           fi
       - name: Check installed path
-        run: test -d ${{steps.install-swift.outputs.install-path}}
+        env:
+          INSTALL_PATH: ${{ steps.install-swift.outputs.install-path }}
+        run: test -d "${INSTALL_PATH}"
       - name: Check installed version
-        run: swift --version | grep -q '${{env.INPUT_SWIFT_VERSION}}'
+        run: swift --version | grep -q "${INPUT_SWIFT_VERSION}"

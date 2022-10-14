@@ -13,5 +13,5 @@ jobs:
       - uses: sersoft-gmbh/running-release-tags-action@v2.1.0
         with:
           update-full-release: true
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
         if: github.event.release.prerelease == false
