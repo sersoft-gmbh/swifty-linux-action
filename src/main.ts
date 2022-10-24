@@ -1,12 +1,11 @@
 import * as core from '@actions/core';
-import {getExecOutput} from "@actions/exec";
+import { getExecOutput } from '@actions/exec';
 import * as tools from '@actions/tool-cache';
 import * as io from '@actions/io';
 import * as github from '@actions/github';
-import * as fs from "fs";
-import * as util from "util";
-import * as path from "path";
-
+import * as fs from 'fs';
+import * as util from 'util';
+import * as path from 'path';
 
 async function runCmd(cmd: string, args?: string[]): Promise<string> {
     const output = await getExecOutput(cmd, args);
@@ -44,9 +43,9 @@ async function install(installBase: string, branchName: string, versionTag: stri
         return await util.promisify(fs.mkdtemp)('SwiftyActions');
     });
 
-    const swiftPkg = path.join(tempPath, "swift.tar.gz");
-    const swiftSig = path.join(tempPath, "swift.tar.gz.sig");
-    const allKeysFile = path.join(tempPath, "all-keys.asc");
+    const swiftPkg = path.join(tempPath, 'swift.tar.gz');
+    const swiftSig = path.join(tempPath, 'swift.tar.gz.sig');
+    const allKeysFile = path.join(tempPath, 'all-keys.asc');
     await core.group('Downloading files', async () => {
         const swiftURL = `https://download.swift.org/${branchName}/${platform.split('.').join('')}/${versionTag}/${versionTag}-${platform}.tar.gz`;
         await Promise.all([
@@ -73,8 +72,8 @@ async function install(installBase: string, branchName: string, versionTag: stri
 
 async function main() {
     switch (process.platform) {
-        case "linux": break;
-        default: throw new Error("This action can only install Swift on linux!");
+        case 'linux': break;
+        default: throw new Error('This action can only install Swift on linux!');
     }
 
     core.startGroup('Validate input');
@@ -83,7 +82,7 @@ async function main() {
     let swiftRelease: string;
     let swiftBranch: string, swiftVersion: string;
     if (!swiftReleaseInput) {
-        core.info("`release-version` was not set. Requiring `branch-name` and `version-tag` parameters!");
+        core.info('`release-version` was not set. Requiring `branch-name` and `version-tag` parameters!');
         swiftBranch = core.getInput('branch-name', { required: true });
         swiftVersion = core.getInput('version-tag', { required: true });
         swiftRelease = swiftReleaseInput;
@@ -198,7 +197,7 @@ async function main() {
             });
         }
     } else {
-        core.info("Skipping installation of dependencies...");
+        core.info('Skipping installation of dependencies...');
     }
 
     const versionIdentifier = `${swiftBranch}-${swiftVersion}-${swiftPlatform}`;
@@ -206,7 +205,7 @@ async function main() {
     const cachedVersion = tools.find(mangledName, '1.0.0');
     const swiftInstallBase = path.join('/opt/swift', versionIdentifier);
     if (cachedVersion) {
-        core.info("Using cached version!");
+        core.info('Using cached version!');
         await io.cp(cachedVersion, swiftInstallBase, { recursive: true });
     } else {
         await install(swiftInstallBase, swiftBranch, swiftVersion, swiftPlatform);
