@@ -3,40 +3,14 @@ name: Tests
 on:
   push:
     branches: [ master ]
-    paths-ignore: [ 'dist/*.js' ]
+    paths:
+      - 'dist/*.js'
+      - '.github/workflows/tests.yml'
   pull_request:
     branches: [ master ]
 
 jobs:
-  deploy-action-code:
-    if: ${{ github.event_name == 'push' }}
-    name: Deploy Action Code
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install depenedencies
-        run: sudo npm i -g typescript @vercel/ncc
-      - uses: actions/checkout@v3.1.0
-        with:
-          token: ${{ secrets.BOT_TOKEN }}
-      - name: Generate action code
-        run: npm run deploy
-      - name: Configure repository
-        env:
-          BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
-        run: |
-          git config user.name "${BOT_USERNAME}"
-          git config user.email "${BOT_USERNAME}@users.noreply.github.com"
-      - name: Commit changes
-        run: |
-          if ! git diff --exit-code --quiet; then
-            git add .
-            git commit -m '[AUTO] Update generated code'
-            git push
-          fi
-
   test-release:
-    needs: deploy-action-code
-    if: ${{ always() && !failure() && !cancelled() }}
     name: Test Release Installation
     strategy:
       matrix:
@@ -89,8 +63,6 @@ jobs:
         run: swift --version | grep -q "${EXPECTED_VERSION}"
 
   test-branch:
-    needs: deploy-action-code
-    if: ${{ always() && !failure() && !cancelled() }}
     name: Test Branch Installation
     strategy:
       matrix:
@@ -143,8 +115,6 @@ jobs:
         run: swift --version | grep -q "${EXPECTED_VERSION}"
 
   test-release-noplatform:
-    needs: deploy-action-code
-    if: ${{ always() && !failure() && !cancelled() }}
     name: Test Release Installation w/o Platform
     strategy:
       matrix:
