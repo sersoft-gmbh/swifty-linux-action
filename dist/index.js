@@ -65,9 +65,9 @@ async function install(installBase, branchName, versionTag, platform) {
         await io.mkdirP(installBase);
         return await util.promisify(fs.mkdtemp)('SwiftyActions');
     });
-    const swiftPkg = path.join(tempPath, "swift.tar.gz");
-    const swiftSig = path.join(tempPath, "swift.tar.gz.sig");
-    const allKeysFile = path.join(tempPath, "all-keys.asc");
+    const swiftPkg = path.join(tempPath, 'swift.tar.gz');
+    const swiftSig = path.join(tempPath, 'swift.tar.gz.sig');
+    const allKeysFile = path.join(tempPath, 'all-keys.asc');
     await core.group('Downloading files', async () => {
         const swiftURL = `https://download.swift.org/${branchName}/${platform.split('.').join('')}/${versionTag}/${versionTag}-${platform}.tar.gz`;
         await Promise.all([
@@ -91,15 +91,15 @@ async function install(installBase, branchName, versionTag, platform) {
 async function main() {
     var _a;
     switch (process.platform) {
-        case "linux": break;
-        default: throw new Error("This action can only install Swift on linux!");
+        case 'linux': break;
+        default: throw new Error('This action can only install Swift on linux!');
     }
     core.startGroup('Validate input');
     const swiftReleaseInput = core.getInput('release-version');
     let swiftRelease;
     let swiftBranch, swiftVersion;
     if (!swiftReleaseInput) {
-        core.info("`release-version` was not set. Requiring `branch-name` and `version-tag` parameters!");
+        core.info('`release-version` was not set. Requiring `branch-name` and `version-tag` parameters!');
         swiftBranch = core.getInput('branch-name', { required: true });
         swiftVersion = core.getInput('version-tag', { required: true });
         swiftRelease = swiftReleaseInput;
@@ -215,14 +215,14 @@ async function main() {
         }
     }
     else {
-        core.info("Skipping installation of dependencies...");
+        core.info('Skipping installation of dependencies...');
     }
     const versionIdentifier = `${swiftBranch}-${swiftVersion}-${swiftPlatform}`;
     const mangledName = `swift.${versionIdentifier}`;
     const cachedVersion = tools.find(mangledName, '1.0.0');
     const swiftInstallBase = path.join('/opt/swift', versionIdentifier);
     if (cachedVersion) {
-        core.info("Using cached version!");
+        core.info('Using cached version!');
         await io.cp(cachedVersion, swiftInstallBase, { recursive: true });
     }
     else {
