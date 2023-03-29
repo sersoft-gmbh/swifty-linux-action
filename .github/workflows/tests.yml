@@ -21,13 +21,10 @@ jobs:
             os-version: ubuntu-22.04
     runs-on: ${{ matrix.os-version }}
     steps:
-      - name: Install dependencies
-        if: ${{ github.event_name == 'pull_request' }}
-        run: sudo npm i -g typescript @vercel/ncc
-      - uses: actions/checkout@v3.5.0
+      - uses: actions/checkout@v3
       - name: Generate action code
         if: ${{ github.event_name == 'pull_request' }}
-        run: npm run deploy
+        uses: ./.github/actions/generate-action-code
       - uses: sersoft-gmbh/swifty-linux-action@master
         if: ${{ github.event_name == 'push' }}
         id: install-swift-master
@@ -73,13 +70,10 @@ jobs:
             os-version: ubuntu-22.04
     runs-on: ${{ matrix.os-version }}
     steps:
-      - name: Install dependencies
-        if: ${{ github.event_name == 'pull_request' }}
-        run: sudo npm i -g typescript @vercel/ncc
-      - uses: actions/checkout@v3.5.0
+      - uses: actions/checkout@v3
       - name: Generate action code
         if: ${{ github.event_name == 'pull_request' }}
-        run: npm run deploy
+        uses: ./.github/actions/generate-action-code
       - uses: sersoft-gmbh/swifty-linux-action@master
         if: ${{ github.event_name == 'push' }}
         id: install-swift-master
@@ -123,13 +117,10 @@ jobs:
       INPUT_SWIFT_VERSION: 5.7
     runs-on: ${{ matrix.os-version }}
     steps:
-      - name: Install dependencies
-        if: ${{ github.event_name == 'pull_request' }}
-        run: sudo npm i -g typescript @vercel/ncc
-      - uses: actions/checkout@v3.5.0
+      - uses: actions/checkout@v3
       - name: Generate action code
         if: ${{ github.event_name == 'pull_request' }}
-        run: npm run deploy
+        uses: ./.github/actions/generate-action-code
       - uses: sersoft-gmbh/swifty-linux-action@master
         if: ${{ github.event_name == 'push' }}
         id: install-swift-master

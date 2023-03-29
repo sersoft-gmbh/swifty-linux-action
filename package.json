@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "deploy": "rm -rf node_modules dist && npm install && npm run build && ncc build lib/main.js -o dist"
+    "pack": "rm -rf dist && ncc build lib/main.js -o dist"
   },
   "repository": {
     "type": "git",
@@ -30,6 +30,8 @@
     "@actions/tool-cache": "^2.0.1"
   },
   "devDependencies": {
-    "@types/node": "^16.18.22"
+    "@types/node": "^16.18.22",
+    "@vercel/ncc": "^0.36.1",
+    "typescript": "^5.0.2"
   }
 }

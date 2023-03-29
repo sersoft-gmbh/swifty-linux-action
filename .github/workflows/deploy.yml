@@ -10,13 +10,10 @@ jobs:
     name: Deploy Action Code
     runs-on: ubuntu-latest
     steps:
-      - name: Install depenedencies
-        run: sudo npm i -g typescript @vercel/ncc
-      - uses: actions/checkout@v3.5.0
+      - uses: actions/checkout@v3
         with:
           token: ${{ secrets.BOT_TOKEN }}
-      - name: Generate action code
-        run: npm run deploy
+      - uses: ./.github/actions/generate-action-code
       - name: Configure repository
         env:
           BOT_USERNAME: ${{ secrets.BOT_USERNAME }}
