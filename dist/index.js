@@ -62,7 +62,7 @@ async function findMatchingRelease(releaseVersion, token) {
     }
     return tagNames[0].split('-')[1];
 }
-async function install(installBase, branchName, versionTag, platform, skipGPGCheck = false) {
+async function install(installBase, branchName, versionTag, platform, skipGPGCheck) {
     const tempPath = await core.group('Setup paths', async () => {
         await io.mkdirP(installBase);
         return await util.promisify(fs.mkdtemp)('swifty-linux-action');
@@ -132,6 +132,7 @@ async function main() {
         core.info(`Using ${swiftPlatform} as platform.`);
     }
     const skipDependencies = core.getBooleanInput('skip-dependencies') || core.getBooleanInput('skip-apt');
+    const skipGPGCheck = core.getBooleanInput('skip-gpg-check');
     core.endGroup();
     if (!skipDependencies) {
         let dependencies;
@@ -235,7 +236,7 @@ async function main() {
         await io.cp(cachedVersion, swiftInstallBase, { recursive: true });
     }
     else {
-        await install(swiftInstallBase, swiftBranch, swiftVersion, swiftPlatform);
+        await install(swiftInstallBase, swiftBranch, swiftVersion, swiftPlatform, skipGPGCheck);
         await tools.cacheDir(swiftInstallBase, mangledName, '1.0.0');
     }
     if (swiftRelease) {
