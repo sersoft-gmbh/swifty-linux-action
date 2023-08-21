@@ -34,6 +34,11 @@ If not given, the action tries to determine the system it currently runs on. Not
 Whether the installation of dependencies (currently via `apt`) should be skipped.<br/>
 Default: `false`
 
+### `skip-gpg-check`
+
+Whether the GPG check should be skipped.<br/>
+Default: `false`
+
 ### `github-token`
 
 The token to use for searching for the latest matching release. Can be set to `${{secrets.GITHUB_TOKEN}}`.<br/>

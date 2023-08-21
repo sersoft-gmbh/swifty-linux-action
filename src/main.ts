@@ -40,7 +40,7 @@ async function findMatchingRelease(releaseVersion: string, token: string): Promi
     return tagNames[0].split('-')[1];
 }
 
-async function install(installBase: string, branchName: string, versionTag: string, platform: string, skipGPGCheck: boolean = false) {
+async function install(installBase: string, branchName: string, versionTag: string, platform: string, skipGPGCheck: boolean) {
     const tempPath = await core.group('Setup paths', async () => {
         await io.mkdirP(installBase);
         return await util.promisify(fs.mkdtemp)('swifty-linux-action');
@@ -114,6 +114,7 @@ async function main() {
         core.info(`Using ${swiftPlatform} as platform.`);
     }
     const skipDependencies = core.getBooleanInput('skip-dependencies') || core.getBooleanInput('skip-apt');
+    const skipGPGCheck = core.getBooleanInput('skip-gpg-check');
     core.endGroup();
 
     if (!skipDependencies) {
@@ -217,7 +218,7 @@ async function main() {
         core.info('Using cached version!');
         await io.cp(cachedVersion, swiftInstallBase, { recursive: true });
     } else {
-        await install(swiftInstallBase, swiftBranch, swiftVersion, swiftPlatform);
+        await install(swiftInstallBase, swiftBranch, swiftVersion, swiftPlatform, skipGPGCheck);
         await tools.cacheDir(swiftInstallBase, mangledName, '1.0.0');
     }
 
