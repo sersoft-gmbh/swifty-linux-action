@@ -7,8 +7,8 @@ import * as fs from 'fs';
 import * as util from 'util';
 import * as path from 'path';
 
-async function runCmd(cmd: string, args?: string[]): Promise<string> {
-    const output = await getExecOutput(cmd, args);
+async function runCmd(cmd: string, ...args: string[]): Promise<string> {
+    const output = await getExecOutput(cmd, args.length <= 0 ? undefined : args);
     return output.stdout;
 }
 
@@ -61,19 +61,19 @@ async function install(installBase: string, branchName: string, versionTag: stri
 
     if (!skipGPGCheck) {
         await core.group('Verifying files', async () => {
-            await runCmd('gpg', ['--import', allKeysFile]);
+            await runCmd('gpg', '--import', allKeysFile);
             let verifyArgs = ['--verify'];
             if (!core.isDebug()) verifyArgs.push('--quiet');
             verifyArgs.push(swiftSig, swiftPkg);
-            await runCmd('gpg', verifyArgs);
+            await runCmd('gpg', ...verifyArgs);
         });
     }
 
     await core.group('Unpacking files', async () => {
         // We need to pass 'strip-components', so we cannot use 'tools.extractTar'
-        await runCmd('tar', ['x', '--strip-components=1', '-C', installBase, '-f', swiftPkg]);
+        await runCmd('tar', 'x', '--strip-components=1', '-C', installBase, '-f', swiftPkg);
         // We need the -R option and want to simply add r (not knowing what the other permissions are), so we use the command line here.
-        await runCmd('chmod', ['-R', 'o+r', path.join(installBase, '/usr/lib/swift')]);
+        await runCmd('chmod', '-R', 'o+r', path.join(installBase, '/usr/lib/swift'));
     });
 
     await core.group('Cleaning up', async () => await io.rmRF(tempPath));
@@ -109,7 +109,7 @@ async function main() {
     let swiftPlatform = core.getInput('platform')?.split('-').join('');
     if (!swiftPlatform) {
         core.info('Parameter `platform` was not set. Trying to determine platform...');
-        const releaseInfo = await runCmd('lsb_release', ['-sir']);
+        const releaseInfo = await runCmd('lsb_release', '-sir');
         swiftPlatform = releaseInfo.split('\n').map(s => s.toLowerCase()).join('');
         core.info(`Using ${swiftPlatform} as platform.`);
     }
@@ -202,8 +202,8 @@ async function main() {
         }
         if (dependencies.length > 0) {
             await core.group('Install dependencies', async () => {
-                await runCmd('sudo', ['apt-get', '-q', 'update']);
-                await runCmd('sudo', ['apt-get', '-q', 'install', '-y', ...dependencies]);
+                await runCmd('sudo', 'apt-get', '-q', 'update');
+                await runCmd('sudo', 'apt-get', '-q', 'install', '-y', ...dependencies);
             });
         }
     } else {
@@ -224,7 +224,7 @@ async function main() {
 
     if (swiftRelease) {
         await core.group('Validating installation', async () => {
-            const version = await runCmd(path.join(swiftInstallBase, '/usr/bin/swift'), ['--version']);
+            const version = await runCmd(path.join(swiftInstallBase, '/usr/bin/swift'), '--version');
             if (!version.includes(swiftRelease)) {
                 throw new Error(`Swift installation of version '${swiftRelease}' seems to have failed. 'swift --version' output: ${version}`);
             }
@@ -237,7 +237,7 @@ async function main() {
 }
 
 try {
-    main().catch((error) => core.setFailed(error.message));
+    main().catch(error => core.setFailed(error.message));
 } catch (error: any) {
     core.setFailed(error.message);
 }
