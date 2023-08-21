@@ -14,11 +14,11 @@ jobs:
     name: Test Release Installation
     strategy:
       matrix:
-        swift-version: [ 5.5, 5.6.2 ]
-        os-version: [ 'ubuntu-20.04' ]
+        swift-version: [ 5.6, 5.7, 5.8.1 ]
+        os-version: [ 'ubuntu-22.04' ]
         include:
-          - swift-version: 5.7
-            os-version: ubuntu-22.04
+          - swift-version: 5.6
+            os-version: ubuntu-20.04
     runs-on: ${{ matrix.os-version }}
     steps:
       - uses: actions/checkout@v3
@@ -31,14 +31,14 @@ jobs:
         with:
           release-version: ${{ matrix.swift-version }}
           platform: ${{ matrix.os-version }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
       - uses: './'
         if: ${{ github.event_name == 'pull_request' }}
         id: install-swift-local
         with:
           release-version: ${{ matrix.swift-version }}
           platform: ${{ matrix.os-version }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
       - id: install-swift
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -63,11 +63,11 @@ jobs:
     name: Test Branch Installation
     strategy:
       matrix:
-        swift-version: [ 5.5, 5.6.2 ]
-        os-version: [ 'ubuntu-20.04' ]
+        swift-version: [ 5.6, 5.7, 5.8.1 ]
+        os-version: [ 'ubuntu-22.04' ]
         include:
-          - swift-version: 5.7
-            os-version: ubuntu-22.04
+          - swift-version: 5.6
+            os-version: ubuntu-20.04
     runs-on: ${{ matrix.os-version }}
     steps:
       - uses: actions/checkout@v3
@@ -114,7 +114,7 @@ jobs:
       matrix:
         os-version: [ 'ubuntu-22.04', 'ubuntu-20.04' ]
     env:
-      INPUT_SWIFT_VERSION: 5.7
+      INPUT_SWIFT_VERSION: 5.8
     runs-on: ${{ matrix.os-version }}
     steps:
       - uses: actions/checkout@v3

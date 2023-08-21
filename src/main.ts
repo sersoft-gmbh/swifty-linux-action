@@ -33,14 +33,17 @@ async function findMatchingRelease(releaseVersion: string, token: string): Promi
     `, { tagQuery: `swift-${releaseVersion}` });
     const tagNames = data.repository?.refs?.nodes?.map(n => n.name)
         .filter(n => n.toLowerCase().endsWith('-release')) ?? [];
-    if (tagNames.length <= 0) return releaseVersion;
+    if (tagNames.length <= 0) {
+        core.info(`No release found for version '${releaseVersion}'. Using version as-is...`);
+        return releaseVersion;
+    }
     return tagNames[0].split('-')[1];
 }
 
-async function install(installBase: string, branchName: string, versionTag: string, platform: string) {
+async function install(installBase: string, branchName: string, versionTag: string, platform: string, skipGPGCheck: boolean = false) {
     const tempPath = await core.group('Setup paths', async () => {
         await io.mkdirP(installBase);
-        return await util.promisify(fs.mkdtemp)('SwiftyActions');
+        return await util.promisify(fs.mkdtemp)('swifty-linux-action');
     });
 
     const swiftPkg = path.join(tempPath, 'swift.tar.gz');
@@ -48,6 +51,7 @@ async function install(installBase: string, branchName: string, versionTag: stri
     const allKeysFile = path.join(tempPath, 'all-keys.asc');
     await core.group('Downloading files', async () => {
         const swiftURL = `https://download.swift.org/${branchName}/${platform.split('.').join('')}/${versionTag}/${versionTag}-${platform}.tar.gz`;
+        core.debug(`Swift Download URL: ${swiftURL}...`)
         await Promise.all([
             tools.downloadTool(swiftURL, swiftPkg),
             tools.downloadTool(`${swiftURL}.sig`, swiftSig),
@@ -55,10 +59,15 @@ async function install(installBase: string, branchName: string, versionTag: stri
         ]);
     });
 
-    await core.group('Verifying files', async () => {
-        await runCmd('gpg', ['--import', allKeysFile]);
-        await runCmd('gpg', ['--verify', '--quiet', swiftSig, swiftPkg]);
-    });
+    if (!skipGPGCheck) {
+        await core.group('Verifying files', async () => {
+            await runCmd('gpg', ['--import', allKeysFile]);
+            let verifyArgs = ['--verify'];
+            if (!core.isDebug()) verifyArgs.push('--quiet');
+            verifyArgs.push(swiftSig, swiftPkg);
+            await runCmd('gpg', verifyArgs);
+        });
+    }
 
     await core.group('Unpacking files', async () => {
         // We need to pass 'strip-components', so we cannot use 'tools.extractTar'
@@ -104,7 +113,7 @@ async function main() {
         swiftPlatform = releaseInfo.split('\n').map(s => s.toLowerCase()).join('');
         core.info(`Using ${swiftPlatform} as platform.`);
     }
-    const skipDependencies = core.getBooleanInput('skip-apt');
+    const skipDependencies = core.getBooleanInput('skip-dependencies') || core.getBooleanInput('skip-apt');
     core.endGroup();
 
     if (!skipDependencies) {
