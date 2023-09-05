@@ -21,7 +21,7 @@ jobs:
             os-version: ubuntu-20.04
     runs-on: ${{ matrix.os-version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Generate action code
         if: ${{ github.event_name == 'pull_request' }}
         uses: ./.github/actions/generate-action-code
@@ -70,7 +70,7 @@ jobs:
             os-version: ubuntu-20.04
     runs-on: ${{ matrix.os-version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Generate action code
         if: ${{ github.event_name == 'pull_request' }}
         uses: ./.github/actions/generate-action-code
@@ -117,7 +117,7 @@ jobs:
       INPUT_SWIFT_VERSION: 5.8
     runs-on: ${{ matrix.os-version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Generate action code
         if: ${{ github.event_name == 'pull_request' }}
         uses: ./.github/actions/generate-action-code
