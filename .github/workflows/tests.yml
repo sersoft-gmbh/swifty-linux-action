@@ -2,12 +2,12 @@ name: Tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - 'dist/*.js'
       - '.github/workflows/tests.yml'
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   test-release:
@@ -25,9 +25,9 @@ jobs:
       - name: Generate action code
         if: ${{ github.event_name == 'pull_request' }}
         uses: ./.github/actions/generate-action-code
-      - uses: sersoft-gmbh/swifty-linux-action@master
+      - uses: sersoft-gmbh/swifty-linux-action@main
         if: ${{ github.event_name == 'push' }}
-        id: install-swift-master
+        id: install-swift-main
         with:
           release-version: ${{ matrix.swift-version }}
           platform: ${{ matrix.os-version }}
@@ -42,7 +42,7 @@ jobs:
       - id: install-swift
         env:
           EVENT_NAME: ${{ github.event_name }}
-          BRANCH_INSTALL_PATH: ${{ steps.install-swift-master.outputs.install-path }}
+          BRANCH_INSTALL_PATH: ${{ steps.install-swift-main.outputs.install-path }}
           LOCAL_INSTALL_PATH: ${{ steps.install-swift-local.outputs.install-path }}
         run: |
           if [ "${EVENT_NAME}" == 'push' ]; then
@@ -74,9 +74,9 @@ jobs:
       - name: Generate action code
         if: ${{ github.event_name == 'pull_request' }}
         uses: ./.github/actions/generate-action-code
-      - uses: sersoft-gmbh/swifty-linux-action@master
+      - uses: sersoft-gmbh/swifty-linux-action@main
         if: ${{ github.event_name == 'push' }}
-        id: install-swift-master
+        id: install-swift-main
         with:
           branch-name: swift-${{ matrix.swift-version }}-release
           version-tag: swift-${{ matrix.swift-version }}-RELEASE
@@ -91,7 +91,7 @@ jobs:
       - id: install-swift
         env:
           EVENT_NAME: ${{ github.event_name }}
-          BRANCH_INSTALL_PATH: ${{ steps.install-swift-master.outputs.install-path }}
+          BRANCH_INSTALL_PATH: ${{ steps.install-swift-main.outputs.install-path }}
           LOCAL_INSTALL_PATH: ${{ steps.install-swift-local.outputs.install-path }}
         run: |
           if [ "${EVENT_NAME}" == 'push' ]; then
@@ -121,9 +121,9 @@ jobs:
       - name: Generate action code
         if: ${{ github.event_name == 'pull_request' }}
         uses: ./.github/actions/generate-action-code
-      - uses: sersoft-gmbh/swifty-linux-action@master
+      - uses: sersoft-gmbh/swifty-linux-action@main
         if: ${{ github.event_name == 'push' }}
-        id: install-swift-master
+        id: install-swift-main
         with:
           release-version: ${{ env.INPUT_SWIFT_VERSION }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -136,7 +136,7 @@ jobs:
       - id: install-swift
         env:
           EVENT_NAME: ${{ github.event_name }}
-          BRANCH_INSTALL_PATH: ${{ steps.install-swift-master.outputs.install-path }}
+          BRANCH_INSTALL_PATH: ${{ steps.install-swift-main.outputs.install-path }}
           LOCAL_INSTALL_PATH: ${{ steps.install-swift-local.outputs.install-path }}
         run: |
           if [ "${EVENT_NAME}" == 'push' ]; then
