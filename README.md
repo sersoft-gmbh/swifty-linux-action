@@ -62,7 +62,7 @@ This can be used to narrow down for example caches across builds.
 In general, the `release-version` input parameter should be used to install a final release of Swift.<br/>
 To for example install Swift 5.6.1, use the following snippet:
 ```yaml
-uses: sersoft-gmbh/swifty-linux-action@v1
+uses: sersoft-gmbh/swifty-linux-action@v3
 with:
     release-version: 5.6.1
 ```
@@ -74,7 +74,7 @@ This will search for the latest matching release using the following rules:
 
 To for example install the latest Swift 5.4.x release, use the following snippet:
 ```yaml
-uses: sersoft-gmbh/swifty-linux-action@v2
+uses: sersoft-gmbh/swifty-linux-action@v3
 with:
     release-version: '5.6'
     github-token: ${{secrets.GITHUB_TOKEN}}
@@ -84,7 +84,7 @@ However, swifty-linux-action also supports installing other snapshots using the 
 So, to for example install the Swift 5.7 development snapshot built on 13th of June 2022, use the following snippet:
 
 ```yaml
-uses: sersoft-gmbh/swifty-linux-action@v2
+uses: sersoft-gmbh/swifty-linux-action@v3
 with:
     branch-name: swift-5.7-branch
     version-tag: swift-5.7-DEVELOPMENT-SNAPSHOT-2022-06-13-a

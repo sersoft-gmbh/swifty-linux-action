@@ -1,12 +1,17 @@
 {
   "name": "swifty-linux-action",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Sets up a Swift environment on Linux",
-  "main": "dist/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "pack": "rm -rf dist && ncc build lib/main.js -o dist"
+    "pack": "rm -rf dist && ncc build lib/main.js -o dist --license license.txt --target es2022"
   },
   "repository": {
     "type": "git",
@@ -30,7 +35,8 @@
     "@actions/tool-cache": "^2.0.1"
   },
   "devDependencies": {
-    "@types/node": "^16.18.50",
+    "@tsconfig/node20": "20.1.2",
+    "@types/node": "^20.6.2",
     "@vercel/ncc": "^0.38.0",
     "typescript": "^5.2.2"
   }

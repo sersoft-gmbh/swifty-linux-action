@@ -97,11 +97,7 @@ async function main() {
         swiftRelease = swiftReleaseInput;
     } else {
         const token = core.getInput('github-token');
-        if (token) {
-            swiftRelease = await findMatchingRelease(swiftReleaseInput, token);
-        } else {
-            swiftRelease = swiftReleaseInput;
-        }
+        swiftRelease = token ? await findMatchingRelease(swiftReleaseInput, token) : swiftReleaseInput;
         swiftBranch = `swift-${swiftRelease}-release`;
         swiftVersion = `swift-${swiftRelease}-RELEASE`;
     }
@@ -109,12 +105,12 @@ async function main() {
     let swiftPlatform = core.getInput('platform')?.split('-').join('');
     if (!swiftPlatform) {
         core.info('Parameter `platform` was not set. Trying to determine platform...');
-        const releaseInfo = await runCmd('lsb_release', '-sir');
+        const releaseInfo= await runCmd('lsb_release', '-sir');
         swiftPlatform = releaseInfo.split('\n').map(s => s.toLowerCase()).join('');
         core.info(`Using ${swiftPlatform} as platform.`);
     }
-    const skipDependencies = core.getBooleanInput('skip-dependencies') || core.getBooleanInput('skip-apt');
-    const skipGPGCheck = core.getBooleanInput('skip-gpg-check');
+    const skipDependencies= core.getBooleanInput('skip-dependencies');
+    const skipGPGCheck= core.getBooleanInput('skip-gpg-check');
     core.endGroup();
 
     if (!skipDependencies) {
@@ -225,9 +221,8 @@ async function main() {
     if (swiftRelease) {
         await core.group('Validating installation', async () => {
             const version = await runCmd(path.join(swiftInstallBase, '/usr/bin/swift'), '--version');
-            if (!version.includes(swiftRelease)) {
+            if (!version.includes(swiftRelease))
                 throw new Error(`Swift installation of version '${swiftRelease}' seems to have failed. 'swift --version' output: ${version}`);
-            }
         });
     }
 

@@ -43,7 +43,6 @@ async function runCmd(cmd, ...args) {
     return output.stdout;
 }
 async function findMatchingRelease(releaseVersion, token) {
-    var _a, _b, _c, _d;
     const data = await github.getOctokit(token).graphql(`
         query getTags($tagQuery: String!) {
             repository(owner: "apple", name: "swift") {
@@ -55,7 +54,8 @@ async function findMatchingRelease(releaseVersion, token) {
             }
         }
     `, { tagQuery: `swift-${releaseVersion}` });
-    const tagNames = (_d = (_c = (_b = (_a = data.repository) === null || _a === void 0 ? void 0 : _a.refs) === null || _b === void 0 ? void 0 : _b.nodes) === null || _c === void 0 ? void 0 : _c.map(n => n.name).filter(n => n.toLowerCase().endsWith('-release'))) !== null && _d !== void 0 ? _d : [];
+    const tagNames = data.repository?.refs?.nodes?.map(n => n.name)
+        .filter(n => n.toLowerCase().endsWith('-release')) ?? [];
     if (tagNames.length <= 0) {
         core.info(`No release found for version '${releaseVersion}'. Using version as-is...`);
         return releaseVersion;
@@ -98,7 +98,6 @@ async function install(installBase, branchName, versionTag, platform, skipGPGChe
     await core.group('Cleaning up', async () => await io.rmRF(tempPath));
 }
 async function main() {
-    var _a;
     switch (process.platform) {
         case 'linux': break;
         default: throw new Error('This action can only install Swift on linux!');
@@ -115,23 +114,18 @@ async function main() {
     }
     else {
         const token = core.getInput('github-token');
-        if (token) {
-            swiftRelease = await findMatchingRelease(swiftReleaseInput, token);
-        }
-        else {
-            swiftRelease = swiftReleaseInput;
-        }
+        swiftRelease = token ? await findMatchingRelease(swiftReleaseInput, token) : swiftReleaseInput;
         swiftBranch = `swift-${swiftRelease}-release`;
         swiftVersion = `swift-${swiftRelease}-RELEASE`;
     }
-    let swiftPlatform = (_a = core.getInput('platform')) === null || _a === void 0 ? void 0 : _a.split('-').join('');
+    let swiftPlatform = core.getInput('platform')?.split('-').join('');
     if (!swiftPlatform) {
         core.info('Parameter `platform` was not set. Trying to determine platform...');
         const releaseInfo = await runCmd('lsb_release', '-sir');
         swiftPlatform = releaseInfo.split('\n').map(s => s.toLowerCase()).join('');
         core.info(`Using ${swiftPlatform} as platform.`);
     }
-    const skipDependencies = core.getBooleanInput('skip-dependencies') || core.getBooleanInput('skip-apt');
+    const skipDependencies = core.getBooleanInput('skip-dependencies');
     const skipGPGCheck = core.getBooleanInput('skip-gpg-check');
     core.endGroup();
     if (!skipDependencies) {
@@ -242,9 +236,8 @@ async function main() {
     if (swiftRelease) {
         await core.group('Validating installation', async () => {
             const version = await runCmd(path.join(swiftInstallBase, '/usr/bin/swift'), '--version');
-            if (!version.includes(swiftRelease)) {
+            if (!version.includes(swiftRelease))
                 throw new Error(`Swift installation of version '${swiftRelease}' seems to have failed. 'swift --version' output: ${version}`);
-            }
         });
     }
     core.addPath(path.join(swiftInstallBase, '/usr/bin'));
