@@ -55,8 +55,8 @@ async function install(installBase: string, branchName: string, versionTag: stri
         let promises: Promise<string>[] = [tools.downloadTool(swiftURL, swiftPkg)];
         if (!skipGPGCheck) {
             promises.push(
-                tools.downloadTool(`${swiftURL}.sig`, swiftSig),
                 tools.downloadTool('https://swift.org/keys/all-keys.asc', allKeysFile),
+                tools.downloadTool(`${swiftURL}.sig`, swiftSig),
             );
         }
         await Promise.all(promises);
