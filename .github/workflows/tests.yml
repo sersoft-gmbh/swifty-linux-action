@@ -14,10 +14,10 @@ jobs:
     name: Test Release Installation
     strategy:
       matrix:
-        swift-version: [ 5.7, 5.8.1 ]
+        swift-version: [ '5.7', '5.8.1' ]
         os-version: [ 'ubuntu-22.04' ]
         include:
-          - swift-version: 5.6
+          - swift-version: '5.6'
             os-version: ubuntu-20.04
     runs-on: ${{ matrix.os-version }}
     steps:
@@ -63,10 +63,10 @@ jobs:
     name: Test Branch Installation
     strategy:
       matrix:
-        swift-version: [ 5.7, 5.8.1 ]
+        swift-version: [ '5.7', '5.8.1' ]
         os-version: [ 'ubuntu-22.04' ]
         include:
-          - swift-version: 5.6
+          - swift-version: '5.6'
             os-version: ubuntu-20.04
     runs-on: ${{ matrix.os-version }}
     steps:
@@ -114,7 +114,7 @@ jobs:
       matrix:
         os-version: [ 'ubuntu-22.04', 'ubuntu-20.04' ]
     env:
-      INPUT_SWIFT_VERSION: 5.8
+      INPUT_SWIFT_VERSION: '5.8'
     runs-on: ${{ matrix.os-version }}
     steps:
       - uses: actions/checkout@v4
