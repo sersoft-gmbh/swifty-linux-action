@@ -65,7 +65,7 @@ async function install(installBase: string, branchName: string, versionTag: stri
     if (!skipGPGCheck) {
         await core.group('Verifying files', async () => {
             if (core.isDebug())
-                core.debug('All Keys:\n' + await util.promisify(fs.readFile)(allKeysFile, 'utf8'));
+                core.debug('All Keys:\n' + fs.readFileSync(allKeysFile, { encoding: 'utf8' }));
             await runCmd('gpg', '--import', allKeysFile);
             let verifyArgs = ['--verify'];
             if (!core.isDebug()) verifyArgs.push('--quiet');
