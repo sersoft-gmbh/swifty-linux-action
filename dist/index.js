@@ -73,11 +73,11 @@ async function install(installBase, branchName, versionTag, platform, skipGPGChe
     await core.group('Downloading files', async () => {
         const swiftURL = `https://download.swift.org/${branchName}/${platform.split('.').join('')}/${versionTag}/${versionTag}-${platform}.tar.gz`;
         core.debug(`Swift Download URL: ${swiftURL}...`);
-        await Promise.all([
-            tools.downloadTool(swiftURL, swiftPkg),
-            tools.downloadTool(`${swiftURL}.sig`, swiftSig),
-            tools.downloadTool('https://swift.org/keys/all-keys.asc', allKeysFile),
-        ]);
+        let promises = [tools.downloadTool(swiftURL, swiftPkg)];
+        if (!skipGPGCheck) {
+            promises.push(tools.downloadTool(`${swiftURL}.sig`, swiftSig), tools.downloadTool('https://www.swift.org/keys/all-keys.asc', allKeysFile));
+        }
+        await Promise.all(promises);
     });
     if (!skipGPGCheck) {
         await core.group('Verifying files', async () => {
