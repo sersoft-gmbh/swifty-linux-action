@@ -81,11 +81,14 @@ async function install(installBase, branchName, versionTag, platform, skipGPGChe
     });
     if (!skipGPGCheck) {
         await core.group('Verifying files', async () => {
-            if (core.isDebug()) {
-                core.debug('All Keys:\n' + fs.readFileSync(allKeysFile, { encoding: 'utf8' }));
-                await runCmd('curl', '-vvv', 'https://www.swift.org/keys/all-keys.asc');
+            try {
+                await runCmd('gpg', '--import', allKeysFile);
             }
-            await runCmd('gpg', '--import', allKeysFile);
+            catch (error) {
+                core.debug('Failed to import GPG keys from file: ' + error);
+                core.debug('Trying to import from keyserver...');
+                await runCmd('gpg', '--keyserver', 'hkp://keyserver.ubuntu.com', '--recv-keys', '7463 A81A 4B2E EA1B 551F  FBCF D441 C977 412B 37AD', '1BE1 E29A 084C B305 F397  D62A 9F59 7F4D 21A5 6D5F', 'A3BA FD35 56A5 9079 C068  94BD 63BC 1CFE 91D3 06C6', '5E4D F843 FB06 5D7F 7E24  FBA2 EF54 30F0 71E1 B235', '8513 444E 2DA3 6B7C 1659  AF4D 7638 F1FB 2B2B 08C4', 'A62A E125 BBBF BB96 A6E0  42EC 925C C1CC ED3D 1561', '8A74 9566 2C3C D4AE 18D9  5637 FAF6 989E 1BC1 6FEA', 'E813 C892 820A 6FA1 3755  B268 F167 DF1A CF9C E069');
+            }
             let verifyArgs = ['--verify'];
             if (!core.isDebug())
                 verifyArgs.push('--quiet');
