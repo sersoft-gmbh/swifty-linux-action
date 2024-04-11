@@ -64,8 +64,11 @@ async function install(installBase: string, branchName: string, versionTag: stri
 
     if (!skipGPGCheck) {
         await core.group('Verifying files', async () => {
-            if (core.isDebug())
+            if (core.isDebug()) {
                 core.debug('All Keys:\n' + fs.readFileSync(allKeysFile, { encoding: 'utf8' }));
+                await runCmd('curl', '-vvv', 'https://www.swift.org/keys/all-keys.asc');
+            }
+
             await runCmd('gpg', '--import', allKeysFile);
             let verifyArgs = ['--verify'];
             if (!core.isDebug()) verifyArgs.push('--quiet');
