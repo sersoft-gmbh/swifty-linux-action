@@ -75,12 +75,14 @@ async function install(installBase, branchName, versionTag, platform, skipGPGChe
         core.debug(`Swift Download URL: ${swiftURL}...`);
         let promises = [tools.downloadTool(swiftURL, swiftPkg)];
         if (!skipGPGCheck) {
-            promises.push(tools.downloadTool(`${swiftURL}.sig`, swiftSig), tools.downloadTool('https://www.swift.org/keys/all-keys.asc', allKeysFile));
+            promises.push(tools.downloadTool(`${swiftURL}.sig`, swiftSig), tools.downloadTool('https://swift.org/keys/all-keys.asc', allKeysFile));
         }
         await Promise.all(promises);
     });
     if (!skipGPGCheck) {
         await core.group('Verifying files', async () => {
+            if (core.isDebug())
+                core.debug('All Keys:\n' + await util.promisify(fs.readFile)(allKeysFile, 'utf8'));
             await runCmd('gpg', '--import', allKeysFile);
             let verifyArgs = ['--verify'];
             if (!core.isDebug())
