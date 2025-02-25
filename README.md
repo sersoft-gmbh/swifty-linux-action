@@ -27,7 +27,7 @@ Required if `release-version` is not set!
 ### `platform`
 
 The platform for which to install the Swift version (e.g. `ubuntu24.04`). Note that the github-actions notations with a dash (e.g. `ubuntu-20.04`) is also valid.<br/>
-If not given, the action tries to determine the system it currently runs on. Note that this might fail if Swift is not available on this platform, or it's not yet supported by this action!.
+If not given, the action tries to determine the system it currently runs on. Note that this might fail if Swift is not available on this platform, or it's not yet supported by this action!
 
 ### `skip-dependencies`
 

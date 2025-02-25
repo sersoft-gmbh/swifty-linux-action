@@ -14,10 +14,10 @@ jobs:
     name: Test Release Installation
     strategy:
       matrix:
-        swift-version: [ '5.8.1', '6.0' ]
+        swift-version: [ '5.10.1', '6.0' ]
         os-version: [ 'ubuntu-24.04' ]
         include:
-          - swift-version: '5.7'
+          - swift-version: '5.9'
             os-version: ubuntu-22.04
     runs-on: ${{ matrix.os-version }}
     steps:
@@ -63,10 +63,10 @@ jobs:
     name: Test Branch Installation
     strategy:
       matrix:
-        swift-version: [ '5.8.1', '6.0' ]
+        swift-version: [ '5.10.1', '6.0' ]
         os-version: [ 'ubuntu-24.04' ]
         include:
-          - swift-version: '5.7'
+          - swift-version: '5.9'
             os-version: ubuntu-22.04
     runs-on: ${{ matrix.os-version }}
     steps:
