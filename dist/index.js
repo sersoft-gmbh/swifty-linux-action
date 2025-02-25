@@ -55,7 +55,7 @@ async function runCmd(cmd, ...args) {
 async function findMatchingRelease(releaseVersion, token) {
     const data = await github.getOctokit(token).graphql(`
         query getTags($tagQuery: String!) {
-            repository(owner: "apple", name: "swift") {
+            repository(owner: "swiftlang", name: "swift") {
                 refs(refPrefix: "refs/tags/", first: 100, query: $tagQuery, orderBy: { field: ALPHABETICAL, direction: DESC }) {
                     nodes {
                         name
@@ -149,24 +149,6 @@ async function main() {
         let dependencies;
         // TODO: Add support for `yum`...
         switch (swiftPlatform) {
-            case 'ubuntu16.04':
-                dependencies = [
-                    'binutils',
-                    'git',
-                    'libc6-dev',
-                    'libcurl3',
-                    'libedit2',
-                    'libgcc-5-dev',
-                    'libpython2.7',
-                    'libsqlite3-0',
-                    'libstdc++-5-dev',
-                    'libxml2',
-                    'pkg-config',
-                    'tzdata',
-                    'zlib1g-dev',
-                    'curl',
-                ];
-                break;
             case 'ubuntu18.04':
                 dependencies = [
                     'binutils',
@@ -200,27 +182,48 @@ async function main() {
                     'libz3-dev',
                     'pkg-config',
                     'tzdata',
-                    'zlib1g-dev',
+                    'uuid-dev',
                 ];
                 break;
             case 'ubuntu22.04':
+            case 'ubuntu23.10':
                 dependencies = [
                     'binutils',
                     'git',
-                    'unzip',
                     'gnupg2',
                     'libc6-dev',
                     'libcurl4-openssl-dev',
                     'libedit2',
-                    'libgcc-9-dev',
-                    'libpython3.8',
+                    'libgcc-11-dev',
+                    'libpython3-dev',
                     'libsqlite3-0',
-                    'libstdc++-9-dev',
+                    'libstdc++-11-dev',
+                    'libxml2-dev',
+                    'libz3-dev',
+                    'pkg-config',
+                    'python3-lldb-13',
+                    'tzdata',
+                    'unzip',
+                ];
+                break;
+            case 'ubuntu24.04':
+                dependencies = [
+                    'binutils',
+                    'git',
+                    'gnupg2',
+                    'libc6-dev',
+                    'libcurl4-openssl-dev',
+                    'libedit2',
+                    'libgcc-13-dev',
+                    'libncurses-dev',
+                    'libpython3-dev',
+                    'libsqlite3-0',
+                    'libstdc++-13-dev',
                     'libxml2-dev',
                     'libz3-dev',
                     'pkg-config',
                     'tzdata',
-                    'zlib1g-dev',
+                    'unzip',
                 ];
                 break;
             default:
