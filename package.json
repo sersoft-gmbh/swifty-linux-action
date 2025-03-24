@@ -35,7 +35,7 @@
     "@actions/tool-cache": "^2.0.2"
   },
   "devDependencies": {
-    "@tsconfig/node20": "20.1.4",
+    "@tsconfig/node20": "20.1.5",
     "@types/node": "^20.17.25",
     "@vercel/ncc": "^0.38.3",
     "typescript": "^5.8.2"
