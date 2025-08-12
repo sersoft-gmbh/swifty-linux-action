@@ -9,7 +9,7 @@ jobs:
     name: Update Running Releases
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: sersoft-gmbh/running-release-tags-action@v3
         if: ${{ github.event.release.prerelease == false }}
         with:
