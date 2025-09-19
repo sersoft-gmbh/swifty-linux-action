@@ -7,8 +7,7 @@
 You can either use [containers](https://hub.docker.com/_/swift), or use [Swiftly](https://www.swift.org/swiftly/documentation/swiftlydocs/).
 There is also a [GitHub action for Swiftly](https://github.com/vapor/swiftly-action).
 
-
-[![Tests](https://github.com/sersoft-gmbh/swifty-linux-action/actions/workflows/tests.yml/badge.svg)](https://github.com/sersoft-gmbh/swifty-linux-action/actions/workflows/tests.yml)
+<hr/>
 
 This action sets up a Swift environment on Linux.
 
